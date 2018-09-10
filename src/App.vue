@@ -25,7 +25,7 @@
 
 <style lang="scss">
     @import '../static/bulma-0.7.1/bulma.sass';
-    @import '../static/fontawesome-pro-5.2.0-web/css/all.css';
+    @import '../static/fontawesome-pro-5.3.1-web/css/all.css';
     @import '../static/custom/style.scss';
 
     html, body {
