@@ -68,7 +68,7 @@
     .navbar-dropdown {
         &.dropdown-right {
             right: 0;
-            top: 53px;
+            top: 52px;
         }
     }
 </style>
