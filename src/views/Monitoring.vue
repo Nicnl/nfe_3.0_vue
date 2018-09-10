@@ -1,6 +1,6 @@
 <template>
     <div class="columns is-centered">
-        <div class="column is-9-fullhd">
+        <div class="column is-10-desktop is-9-fullhd">
             <table class="table">
                 <thead>
                 <tr>
