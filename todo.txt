@@ -1,0 +1,13 @@
+- administration
+=> voir DLs
+=> interrompre (voir comment faire reset by peer)
+=> couper débit
+
+- listing
+=> mode récursif
+=> génération lien
+       => avec durée
+       => avec bande passante
+       => forcer ou non le dl (donner le bon mimetype ou pas)
+            => ne jamais forcer le DL et toujours donner le bon mimetype ?
+=> recherche (client side ?) (serveur side avec goroutines et liste de matchs ?)
