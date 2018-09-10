@@ -24,7 +24,7 @@
                 <tr v-for="(transfer, i) in transfers" :key="i">
                     <td><i class="fal" :class="stateIcon(transfer.current_state)"></i></td>
                     <td><a href="http://google.fr">{{ transfer.file_name }}</a></td>
-                    <td class="speed-indicator">324<span class="unit">Ko/s</span></td>
+                    <td class="speed-indicator">{{ speedRound(transfer.current_speed) }}<span class="unit">{{ speedUnit(transfer.current_speed) }}</span></td>
                     <td>
                         <div class="progress-bar"><div class="bar-1" :style="{width: percentBar1(transfer) + '%'}" v-if="percentBar1(transfer) > 0"></div><div class="bar-2" :style="{width: percentBar2(transfer) + '%'}" v-if="percentBar2(transfer) > 0"></div><div class="bar-3" :style="{width: percentBar3(transfer) + '%'}" v-if="percentBar3(transfer) > 0"></div><div class="bar-4" :style="{width: percentBar4(transfer) + '%'}" v-if="percentBar4(transfer) > 0"></div></div>
                     </td>
@@ -137,6 +137,8 @@
                         downloaded: 26549844 / 2,
                         section_length: 26549844,
                         file_length: 26549844,
+
+                        current_speed: 512397,
                     },
                     {
                         current_state: 1,
@@ -146,6 +148,8 @@
                         downloaded: 26549844 / 4,
                         section_length: 26549844 / 2,
                         file_length: 26549844,
+
+                        current_speed: 984,
                     },
                     {
                         current_state: 2,
@@ -155,6 +159,8 @@
                         downloaded: 26549844 / 6,
                         section_length: 26549844 / 3,
                         file_length: 26549844,
+
+                        current_speed: 12587,
                     },
                     {
                         current_state: 3,
@@ -164,6 +170,8 @@
                         downloaded: 26549844 / 4,
                         section_length: 26549844 / 2,
                         file_length: 26549844,
+
+                        current_speed: 1574971,
                     },
                     {
                         current_state: 4,
@@ -173,6 +181,8 @@
                         downloaded: 26549844 / 8,
                         section_length: 26549844 / 4,
                         file_length: 26549844,
+
+                        current_speed: 24658793,
                     },
                 ]
             }
@@ -198,6 +208,22 @@
             percentBar4(transfer) {
                 return (transfer.file_length - transfer.section_start - transfer.section_length) * 100.0 / transfer.file_length
             },
+            speedUnit(speed) {
+                if (speed >= 10 ** 9) return 'Go/s';
+                else if (speed >= 10 ** 6) return 'Mo/s';
+                else if (speed >= 10 ** 3) return 'Ko/s';
+                else return 'o/s';
+            },
+            speedRound(speed) {
+                if (speed >= 10 ** 11) return (speed / 10 ** 9).toFixed(0);
+                else if (speed >= 10 ** 10) return (speed / 10 ** 9).toFixed(1);
+                else if (speed >= 10 ** 9) return (speed / 10 ** 9).toFixed(2);
+                else if (speed >= 10 ** 8) return (speed / 10 ** 6).toFixed(0);
+                else if (speed >= 10 ** 7) return (speed / 10 ** 6).toFixed(1);
+                else if (speed >= 10 ** 6) return (speed / 10 ** 6).toFixed(2);
+                else if (speed >= 10 ** 3) return (speed / 10 ** 3).toFixed(0);
+                else return speed;
+            }
         }
     }
 </script>
