@@ -1,7 +1,7 @@
 <template>
     <nav class="navbar is-dark container_row" role="navigation" aria-label="main navigation">
         <div class="navbar-brand">
-            <span class="navbar-item" style="font-size: 1.25em;">NFE 3.0</span>
+            <span class="navbar-item" style="font-size: 1.25em;"><router-link :to="{ name: 'ListFiles' }" style="color: inherit;">NFE 3.0</router-link></span>
             <div class="navbar-burger burger" data-target="navbarExampleTransparentExample" :class="{'is-active': burgerOpened}" @click="toggleBurger">
                 <span></span>
                 <span></span>
@@ -31,9 +31,9 @@
                 <div class="navbar-item has-dropdown is-hoverable">
                     <a class="navbar-link">Administration</a>
                     <div class="navbar-dropdown dropdown-right is-boxed">
-                        <a class="navbar-item">
+                        <router-link class="navbar-item" :to="{ name: 'Monitoring' }">
                             <i class="fal fa-monitor-heart-rate"></i>Activité
-                        </a>
+                        </router-link>
                     </div>
                 </div>
 
