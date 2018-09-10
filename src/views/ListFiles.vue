@@ -47,6 +47,18 @@
     table.table {
         width: 100%;
         background-color: #f5f7fa;
+
+        tbody tr {
+            background-color: rgba(0, 0, 0, 0);
+            transition: background-color 250ms;
+
+            &:hover {
+                background-color: rgba(0, 0, 0, 0.05);
+                transition: background-color 100ms;
+            }
+
+            cursor: pointer;
+        }
     }
 </style>
 
