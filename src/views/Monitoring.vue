@@ -21,7 +21,7 @@
                 </tr>
                 </tfoot>
                 <tbody>
-                <tr v-for="(transfer, i) in transfers" :key="i">
+                <tr v-for="(transfer, i) in transfers" :key="i" :class="{blurred: transfer.blurred}">
                     <td><i class="fal" :class="stateIcon(transfer.current_state)"></i></td>
                     <td><a href="http://google.fr">{{ transfer.file_name }}</a></td>
                     <td class="speed-indicator">{{ speedRound(transfer.current_speed) }}<span class="unit">{{ speedUnit(transfer.current_speed) }}</span></td>
@@ -46,10 +46,22 @@
 </template>
 
 <style lang="scss">
+    .blurred {
+        filter: blur(3px);
+        -webkit-transition: 1s -webkit-filter linear;
+        -moz-transition: 1s -moz-filter linear;
+        -moz-transition: 1s filter linear;
+        -ms-transition: 1s -ms-filter linear;
+        -o-transition: 1s -o-filter linear;
+        transition: 1s filter linear, 1s -webkit-filter linear;
+    }
+
     .kill-download {
         position: relative;
 
         .kill-popup {
+            filter: none;
+
             position: absolute;
 
             width: 240px;
@@ -197,6 +209,7 @@
                         killPopupOpened: false,
                         killPopupRequest: false,
                         killPopupCloseTimeout: null,
+                        blurred: false,
                     },
                     {
                         current_state: 1,
@@ -212,6 +225,7 @@
                         killPopupOpened: false,
                         killPopupRequest: false,
                         killPopupCloseTimeout: null,
+                        blurred: false,
                     },
                     {
                         current_state: 2,
@@ -227,6 +241,7 @@
                         killPopupOpened: false,
                         killPopupRequest: false,
                         killPopupCloseTimeout: null,
+                        blurred: false,
                     },
                     {
                         current_state: 3,
@@ -242,6 +257,7 @@
                         killPopupOpened: false,
                         killPopupRequest: false,
                         killPopupCloseTimeout: null,
+                        blurred: false,
                     },
                     {
                         current_state: 4,
@@ -257,6 +273,7 @@
                         killPopupOpened: false,
                         killPopupRequest: false,
                         killPopupCloseTimeout: null,
+                        blurred: false,
                     },
                 ]
             }
@@ -309,11 +326,21 @@
                 else return speed;
             },
             killPopupOpen(i) {
+                for (let j in this.transfers) {
+                    if (j != i) this.killPopupClose(j, false);
+                    this.transfers[j].blurred = true;
+                }
+                this.transfers[i].blurred = false;
+
                 this.transfers[i].killPopupOpened = true;
             },
-            killPopupClose(i) {
+            killPopupClose(i, unblur=true) {
                 if (this.transfers[i].killPopupRequest) return;
                 this.killPopupClearTimer(i);
+
+                if (unblur)
+                    for (let j in this.transfers)
+                        this.transfers[j].blurred = false;
 
                 this.transfers[i].killPopupOpened = false;
             },
