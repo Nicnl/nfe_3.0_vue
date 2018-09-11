@@ -21,7 +21,7 @@
                 </tr>
                 </tfoot>
                 <tbody>
-                <tr v-for="(transfer, i) in transfers" :key="i" :class="{blurred: transfer.blurred}">
+                <tr v-for="(transfer, i) in transfers" :key="i" class="blur-animated" :class="{blurred: notBlurredLine !== null && i !== notBlurredLine, unblurred: !(notBlurredLine !== null && i !== notBlurredLine)}">
                     <td><i class="fal" :class="stateIcon(transfer.current_state)"></i></td>
                     <td><a href="http://google.fr">{{ transfer.file_name }}</a></td>
                     <td class="speed-indicator">{{ speedRound(transfer.current_speed) }}<span class="unit">{{ speedUnit(transfer.current_speed) }}</span></td>
@@ -30,10 +30,10 @@
                     </td>
                     <td>
                         <i class="fal fa-tachometer" style="margin-right: 6px;"></i>
-                        <i class="fal fa-skull kill-download" style="margin-right: 6px;cursor: pointer;" @click.self="killPopupOpen(i)" @mouseleave="killPopupLeave(i)" @mouseenter="killPopupEnter(i)">
-                            <span class="kill-popup" v-if="transfer.killPopupOpened">
-                                <i class="fal fa-times kill-close-button" :class="{'is-disabled': transfer.killPopupRequest}" @click.self="killPopupClose(i)"></i>
-                                <span class="kill-title button is-danger" :class="{'is-loading': transfer.killPopupRequest}" :disabled="transfer.killPopupRequest" @click="killPopupKill(i)">Couper le téléchargement</span>
+                        <i class="fal fa-skull kill-download" style="margin-right: 6px;cursor: pointer;" @click.self="killPopupOpen(i)">
+                            <span class="kill-popup" v-if="killPopupOpened === i" @mouseleave="killPopupAutoclose" @mouseenter="clearAutoclose">
+                                <i class="fal fa-times kill-close-button" :class="{'is-disabled': killPopupRequest}" @click.self="closeAnyPopup"></i>
+                                <span class="kill-title button is-danger" :class="{'is-loading': killPopupRequest}" :disabled="killPopupRequest" @click="killPopupKill(i)">Couper le téléchargement</span>
                             </span>
                         </i>
                         <i class="fal fa-info-circle"></i>
@@ -46,15 +46,30 @@
 </template>
 
 <style lang="scss">
-    .blurred {
-        filter: blur(3px);
-        -webkit-transition: 1s -webkit-filter linear;
-        -moz-transition: 1s -moz-filter linear;
-        -moz-transition: 1s filter linear;
-        -ms-transition: 1s -ms-filter linear;
-        -o-transition: 1s -o-filter linear;
-        transition: 1s filter linear, 1s -webkit-filter linear;
+    .blur-animated {
+        $bluranimation: 135ms;
+        &.unblurred {
+            filter: blur(0px);
+            -webkit-transition: $bluranimation -webkit-filter linear;
+            -moz-transition: $bluranimation -moz-filter linear;
+            -moz-transition: $bluranimation filter linear;
+            -ms-transition: $bluranimation -ms-filter linear;
+            -o-transition: $bluranimation -o-filter linear;
+            transition: $bluranimation filter linear, $bluranimation -webkit-filter linear;
+        }
+
+        &.blurred {
+            filter: blur(3px);
+            -webkit-transition: $bluranimation -webkit-filter linear;
+            -moz-transition: $bluranimation -moz-filter linear;
+            -moz-transition: $bluranimation filter linear;
+            -ms-transition: $bluranimation -ms-filter linear;
+            -o-transition: $bluranimation -o-filter linear;
+            transition: $bluranimation filter linear, $bluranimation -webkit-filter linear;
+        }
     }
+
+
 
     .kill-download {
         position: relative;
@@ -88,7 +103,7 @@
                 $color: #bbbbbb;
                 color: $color;
                 &:hover { color: #686868; }
-                transition: color 100ms;
+                transition: color 200ms;
 
                 cursor: pointer;
                 &.is-disabled {
@@ -194,6 +209,11 @@
         name: 'Monitoring',
         data () {
             return {
+                notBlurredLine: null,
+                popupAutocloseTimeout: null,
+                killPopupOpened: null,
+                killPopupRequest: null,
+
                 transfers: [
                     {
                         current_state: 0,
@@ -205,11 +225,6 @@
                         file_length: 26549844,
 
                         current_speed: 512397,
-
-                        killPopupOpened: false,
-                        killPopupRequest: false,
-                        killPopupCloseTimeout: null,
-                        blurred: false,
                     },
                     {
                         current_state: 1,
@@ -221,11 +236,6 @@
                         file_length: 26549844,
 
                         current_speed: 984,
-
-                        killPopupOpened: false,
-                        killPopupRequest: false,
-                        killPopupCloseTimeout: null,
-                        blurred: false,
                     },
                     {
                         current_state: 2,
@@ -237,11 +247,6 @@
                         file_length: 26549844,
 
                         current_speed: 12587,
-
-                        killPopupOpened: false,
-                        killPopupRequest: false,
-                        killPopupCloseTimeout: null,
-                        blurred: false,
                     },
                     {
                         current_state: 3,
@@ -253,11 +258,6 @@
                         file_length: 26549844,
 
                         current_speed: 1574971,
-
-                        killPopupOpened: false,
-                        killPopupRequest: false,
-                        killPopupCloseTimeout: null,
-                        blurred: false,
                     },
                     {
                         current_state: 4,
@@ -269,11 +269,6 @@
                         file_length: 26549844,
 
                         current_speed: 1234567890234567,
-
-                        killPopupOpened: false,
-                        killPopupRequest: false,
-                        killPopupCloseTimeout: null,
-                        blurred: false,
                     },
                 ]
             }
@@ -325,49 +320,43 @@
                 else if (len > 3) return (speed / 10 ** 3).toFixed(2);
                 else return speed;
             },
-            killPopupOpen(i) {
-                for (let j in this.transfers) {
-                    if (j != i) this.killPopupClose(j, false);
-                    this.transfers[j].blurred = true;
-                }
-                this.transfers[i].blurred = false;
+            closeAnyPopup() {
+                if (this.killPopupOpened !== null && this.killPopupRequest) return false;
 
-                this.transfers[i].killPopupOpened = true;
+                this.notBlurredLine = null;
+                this.killPopupOpened = null;
             },
-            killPopupClose(i, unblur=true) {
-                if (this.transfers[i].killPopupRequest) return;
-                this.killPopupClearTimer(i);
 
-                if (unblur)
-                    for (let j in this.transfers)
-                        this.transfers[j].blurred = false;
+            killPopupOpen(i) {
+                if (this.killPopupOpened !== null && this.killPopupRequest) return;
 
-                this.transfers[i].killPopupOpened = false;
+                this.killPopupOpened = i;
+                this.notBlurredLine = i;
             },
             killPopupKill(i) {
-                if (this.transfers[i].killPopupRequest) return;
-                this.transfers[i].killPopupRequest = true;
+                if (this.killPopupOpened === null) return;
+                if (this.killPopupRequest) return;
+
+                this.killPopupRequest = true;
 
                 setTimeout(() => {
-                    this.transfers[i].killPopupRequest = false;
-                    this.killPopupClose(i);
+                    this.killPopupRequest = false;
+                    this.closeAnyPopup();
                 }, 1000);
             },
-            killPopupClearTimer(i) {
-                if (this.transfers[i].killPopupCloseTimeout !== null) {
-                    clearTimeout(this.transfers[i].killPopupCloseTimeout);
-                }
-            },
-            killPopupLeave(i) {
-                this.killPopupClearTimer(i);
+            clearAutoclose() {
+                if (this.popupAutocloseTimeout === null) return;
 
-                this.transfers[i].killPopupCloseTimeout = setTimeout(() => {
-                    this.transfers[i].killPopupCloseTimeout = null;
-                    this.killPopupClose(i);
-                }, 450);
+                clearTimeout(this.popupAutocloseTimeout);
             },
-            killPopupEnter(i) {
-                this.killPopupClearTimer(i);
+            killPopupAutoclose() {
+                if (this.killPopupRequest) return;
+
+                this.popupAutocloseTimeout = setTimeout(() => {
+                    if (this.killPopupRequest) return;
+
+                    this.closeAnyPopup();
+                }, 450);
             },
         }
     }
