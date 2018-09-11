@@ -11,3 +11,16 @@
        => forcer ou non le dl (donner le bon mimetype ou pas)
             => ne jamais forcer le DL et toujours donner le bon mimetype ?
 => recherche (client side ?) (serveur side avec goroutines et liste de matchs ?)
+=> Partager un sous dossier via lien limité en temps et / ou limite de débit
+
+droits d'un compte
+- générer de liens de dl : vrai, faux
+  - durée maximum nullable
+  - débit maximum nullable
+- durée par défaut nullable
+- débit par défaut nullable
+- accès au menu activité
+  - droit de limiter vitesse d'un DL en cours ?
+  - droit de couper un DL en cours ?
+- droit fonction listing
+- droit fonction recursif
