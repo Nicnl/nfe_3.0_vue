@@ -3,6 +3,7 @@ import Router from 'vue-router'
 
 import Home from '@/views/Home'
 import ListFiles from '@/views/ListFiles'
+import Monitoring from '@/views/Monitoring'
 import NavBar from '@/components/Navigation/NavBar'
 
 Vue.use(Router)
@@ -22,6 +23,14 @@ const router = new Router({
             name: 'ListFiles',
             components: {
                 default: ListFiles,
+                navbar: NavBar
+            },
+        },
+        {
+            path: '/monitoring',
+            name: 'Monitoring',
+            components: {
+                default: Monitoring,
                 navbar: NavBar
             },
         },
