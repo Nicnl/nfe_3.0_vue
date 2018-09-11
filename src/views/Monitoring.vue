@@ -30,10 +30,10 @@
                     </td>
                     <td>
                         <i class="fal fa-tachometer" style="margin-right: 6px;"></i>
-                        <i class="fal fa-skull kill-download" style="margin-right: 6px;cursor: pointer;" @click.self="killPopupOpen(i)" @mouseleave="killPopupClose(i)">
+                        <i class="fal fa-skull kill-download" style="margin-right: 6px;cursor: pointer;" @click.self="killPopupOpen(i)" @mouseleave="killPopupLeave(i)" @mouseenter="killPopupEnter(i)">
                             <span class="kill-popup" v-if="transfer.killPopupOpened">
-                                <i class="fal fa-times kill-close-button" style="cursor: pointer;" @click.self="killPopupClose(i)"></i>
-                                <span class="kill-title button is-danger">Couper le téléchargement</span>
+                                <i class="fal fa-times kill-close-button" :class="{'is-disabled': transfer.killPopupRequest}" @click.self="killPopupClose(i)"></i>
+                                <span class="kill-title button is-danger" :class="{'is-loading': transfer.killPopupRequest}" :disabled="transfer.killPopupRequest" @click="killPopupKill(i)">Couper le téléchargement</span>
                             </span>
                         </i>
                         <i class="fal fa-info-circle"></i>
@@ -73,9 +73,17 @@
                 top: 16px;
                 right: 9px;
 
-                color: #bbbbbb;
+                $color: #bbbbbb;
+                color: $color;
                 &:hover { color: #686868; }
                 transition: color 100ms;
+
+                cursor: pointer;
+                &.is-disabled {
+                    color: #dfdfdf;
+                    &:hover { color: #dfdfdf; }
+                    cursor: default;
+                }
             }
 
             .kill-title {
@@ -187,6 +195,8 @@
                         current_speed: 512397,
 
                         killPopupOpened: false,
+                        killPopupRequest: false,
+                        killPopupCloseTimeout: null,
                     },
                     {
                         current_state: 1,
@@ -200,6 +210,8 @@
                         current_speed: 984,
 
                         killPopupOpened: false,
+                        killPopupRequest: false,
+                        killPopupCloseTimeout: null,
                     },
                     {
                         current_state: 2,
@@ -213,6 +225,8 @@
                         current_speed: 12587,
 
                         killPopupOpened: false,
+                        killPopupRequest: false,
+                        killPopupCloseTimeout: null,
                     },
                     {
                         current_state: 3,
@@ -226,6 +240,8 @@
                         current_speed: 1574971,
 
                         killPopupOpened: false,
+                        killPopupRequest: false,
+                        killPopupCloseTimeout: null,
                     },
                     {
                         current_state: 4,
@@ -239,6 +255,8 @@
                         current_speed: 1234567890234567,
 
                         killPopupOpened: false,
+                        killPopupRequest: false,
+                        killPopupCloseTimeout: null,
                     },
                 ]
             }
@@ -294,8 +312,35 @@
                 this.transfers[i].killPopupOpened = true;
             },
             killPopupClose(i) {
-                console.log(i);
+                if (this.transfers[i].killPopupRequest) return;
+                this.killPopupClearTimer(i);
+
                 this.transfers[i].killPopupOpened = false;
+            },
+            killPopupKill(i) {
+                if (this.transfers[i].killPopupRequest) return;
+                this.transfers[i].killPopupRequest = true;
+
+                setTimeout(() => {
+                    this.transfers[i].killPopupRequest = false;
+                    this.killPopupClose(i);
+                }, 1000);
+            },
+            killPopupClearTimer(i) {
+                if (this.transfers[i].killPopupCloseTimeout !== null) {
+                    clearTimeout(this.transfers[i].killPopupCloseTimeout);
+                }
+            },
+            killPopupLeave(i) {
+                this.killPopupClearTimer(i);
+
+                this.transfers[i].killPopupCloseTimeout = setTimeout(() => {
+                    this.transfers[i].killPopupCloseTimeout = null;
+                    this.killPopupClose(i);
+                }, 450);
+            },
+            killPopupEnter(i) {
+                this.killPopupClearTimer(i);
             },
         }
     }
