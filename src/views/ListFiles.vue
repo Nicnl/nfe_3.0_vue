@@ -29,7 +29,7 @@
                 <tr v-for="(file, i) in files" :key="'file' + i">
                     <td><i class="fal" :class="icon(file.name)"></i></td>
                     <td><a href="http://google.fr">{{ file.name }}</a></td>
-                    <td>{{ sizeRound(file.size) }}<span>{{ sizeUnit(file.size) }}</span></td>
+                    <td><span class="size">{{ sizeRound(file.size) }}</span><span class="extension">{{ sizeUnit(file.size) }}</span></td>
                     <td class="share-button"><i class="fal fa-share-square"></i></td>
                 </tr>
                 </tbody>
@@ -81,6 +81,15 @@
                 }
 
                 transition: color 200ms;
+
+                .extension {
+                    margin-left: 3px;
+                    font-size: 13px;
+                }
+
+                .size {
+                    font-size: 15px;
+                }
             }
         }
     }
