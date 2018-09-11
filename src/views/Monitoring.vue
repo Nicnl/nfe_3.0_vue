@@ -8,7 +8,7 @@
                     <th></th>
                     <th width="50px"></th>
                     <th width="215px"></th>
-                    <th width="100px"></th>
+                    <th width="95px"></th>
                 </tr>
                 </thead>
                 <tfoot>
@@ -28,6 +28,7 @@
                     <td>
                         <div class="progress-bar"><div class="bar-1" :style="{width: percentBar1(transfer) + '%'}" v-if="percentBar1(transfer) > 0"></div><div class="bar-2" :style="{width: percentBar2(transfer) + '%'}" v-if="percentBar2(transfer) > 0"></div><div class="bar-3" :style="{width: percentBar3(transfer) + '%'}" v-if="percentBar3(transfer) > 0"></div><div class="bar-4" :style="{width: percentBar4(transfer) + '%'}" v-if="percentBar4(transfer) > 0"></div></div>
                     </td>
+
                     <td>
                         <i class="fal fa-tachometer" style="margin-right: 6px;"></i>
                         <i class="fal fa-skull kill-download" style="margin-right: 6px;cursor: pointer;" @click.self="killPopupOpen(i)">
