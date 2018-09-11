@@ -24,3 +24,24 @@ droits d'un compte
   - droit de couper un DL en cours ?
 - droit fonction listing
 - droit fonction recursif
+- droit admin de gestion des users
+
+Pages :
+- administration : gestion des users
+  - liste des users
+    - suppression d'un user
+  - créer un user + droits
+  - modifier un user + droits
+- activité :
+  - page principale
+  - confirmation tuer un DL
+  - supprimer un DL de la liste
+  - interface changement débit
+  - affichage de la limite de débit d'un DL
+- listing des fichiers (connexion normale)
+  - génération d'un lien de fichier (débit + durée max en fonction du compte)
+  - génération d'un lien de dossier (débit + durée max en fonction du compte)
+- listing des fichiers (lien partageable)
+  - pas de génération de partage possible
+  - menu administration caché
+  - option de liste et de récursivité en fonction des droits du lien
