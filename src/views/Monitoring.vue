@@ -229,9 +229,11 @@
                 else if (len > 8) return (speed / 10 ** 6).toFixed(0);
                 else if (len > 7) return (speed / 10 ** 6).toFixed(1);
                 else if (len > 6) return (speed / 10 ** 6).toFixed(2);
-                else if (len > 3) return (speed / 10 ** 3).toFixed(0);
+                else if (len > 5) return (speed / 10 ** 3).toFixed(0);
+                else if (len > 4) return (speed / 10 ** 3).toFixed(1);
+                else if (len > 3) return (speed / 10 ** 3).toFixed(2);
                 else return speed;
-            }
+            },
         }
     }
 </script>
