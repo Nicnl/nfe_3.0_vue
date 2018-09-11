@@ -30,13 +30,20 @@
                     </td>
 
                     <td>
-                        <i class="fal fa-tachometer" style="margin-right: 6px;"></i>
+                        <i class="fal fa-tachometer speed-limit" style="margin-right: 6px;cursor: pointer;" @click.self="speedPopupOpen(i)">
+                            <span class="speed-popup" v-if="speedPopupOpened === i" @mouseleave="speedPopupAutoclose" @mouseenter="clearAutoclose">
+                                <i class="fal fa-times speed-close-button" :class="{'is-disabled': speedPopupRequest}" @click.self="closeAnyPopup"></i>
+                                <span class="speed-title button is-danger" :class="{'is-loading': speedPopupRequest}" :disabled="speedPopupRequest" @click="speedPopupKill(i)">Couper le téléchargement</span>
+                            </span>
+                        </i>
+
                         <i class="fal fa-skull kill-download" style="margin-right: 6px;cursor: pointer;" @click.self="killPopupOpen(i)">
                             <span class="kill-popup" v-if="killPopupOpened === i" @mouseleave="killPopupAutoclose" @mouseenter="clearAutoclose">
                                 <i class="fal fa-times kill-close-button" :class="{'is-disabled': killPopupRequest}" @click.self="closeAnyPopup"></i>
                                 <span class="kill-title button is-danger" :class="{'is-loading': killPopupRequest}" :disabled="killPopupRequest" @click="killPopupKill(i)">Couper le téléchargement</span>
                             </span>
                         </i>
+
                         <i class="fal fa-info-circle"></i>
                     </td>
                 </tr>
@@ -115,6 +122,57 @@
             }
 
             .kill-title {
+                position: absolute;
+                top: 8px;
+                left: 8px;
+                font-family: BlinkMacSystemFont, -apple-system, "Segoe UI", "Roboto", "Oxygen", "Ubuntu", "Cantarell", "Fira Sans", "Droid Sans", "Helvetica Neue", "Helvetica", "Arial", sans-serif;
+            }
+        }
+    }
+
+    .speed-limit {
+        position: relative;
+
+        .speed-popup {
+            filter: none;
+
+            position: absolute;
+
+            width: 240px;
+            height: 52px;
+
+            top: -18px;
+            right: -7px;
+
+            display: block;
+            //background-color: rgba(255, 0, 0, 0.2);
+            background-color: white;
+            box-shadow: 0 8px 8px rgba(10, 10, 10, 0.1), 0 0 0 1px rgba(10, 10, 10, 0.1);
+            border-radius: 6px;
+            cursor: default;
+
+            .speed-close-button {
+                position: absolute;
+
+                font-size: 19px;
+
+                top: 16px;
+                right: 9px;
+
+                $color: #bbbbbb;
+                color: $color;
+                &:hover { color: #686868; }
+                transition: color 200ms;
+
+                cursor: pointer;
+                &.is-disabled {
+                    color: #dfdfdf;
+                    &:hover { color: #dfdfdf; }
+                    cursor: default;
+                }
+            }
+
+            .speed-title {
                 position: absolute;
                 top: 8px;
                 left: 8px;
@@ -212,8 +270,12 @@
             return {
                 notBlurredLine: null,
                 popupAutocloseTimeout: null,
+
                 killPopupOpened: null,
                 killPopupRequest: null,
+
+                speedPopupOpened: null,
+                speedPopupRequest: null,
 
                 transfers: [
                     {
@@ -323,18 +385,29 @@
             },
             closeAnyPopup() {
                 if (this.killPopupOpened !== null && this.killPopupRequest) return false;
+                if (this.speedPopupOpened !== null && this.speedPopupRequest) return false;
 
                 this.notBlurredLine = null;
                 this.killPopupOpened = null;
+                this.speedPopupOpened = null;
+
+                return true;
+            },
+            clearAutoclose() {
+                if (this.popupAutocloseTimeout === null) return;
+
+                clearTimeout(this.popupAutocloseTimeout);
             },
 
             killPopupOpen(i) {
                 if (this.killPopupOpened !== null && this.killPopupRequest) return;
 
-                this.killPopupOpened = i;
-                this.notBlurredLine = i;
+                if (this.closeAnyPopup()) {
+                    this.killPopupOpened = i;
+                    this.notBlurredLine = i;
+                }
             },
-            killPopupKill(i) {
+            killPopupKill() {
                 if (this.killPopupOpened === null) return;
                 if (this.killPopupRequest) return;
 
@@ -345,16 +418,40 @@
                     this.closeAnyPopup();
                 }, 1000);
             },
-            clearAutoclose() {
-                if (this.popupAutocloseTimeout === null) return;
-
-                clearTimeout(this.popupAutocloseTimeout);
-            },
             killPopupAutoclose() {
                 if (this.killPopupRequest) return;
 
                 this.popupAutocloseTimeout = setTimeout(() => {
                     if (this.killPopupRequest) return;
+
+                    this.closeAnyPopup();
+                }, 450);
+            },
+
+            speedPopupOpen(i) {
+                if (this.speedPopupOpened !== null && this.speedPopupRequest) return;
+
+                if (this.closeAnyPopup()) {
+                    this.speedPopupOpened = i;
+                    this.notBlurredLine = i;
+                }
+            },
+            speedPopupKill() {
+                if (this.speedPopupOpened === null) return;
+                if (this.speedPopupRequest) return;
+
+                this.speedPopupRequest = true;
+
+                setTimeout(() => {
+                    this.speedPopupRequest = false;
+                    this.closeAnyPopup();
+                }, 1000);
+            },
+            speedPopupAutoclose() {
+                if (this.speedPopupRequest) return;
+
+                this.popupAutocloseTimeout = setTimeout(() => {
+                    if (this.speedPopupRequest) return;
 
                     this.closeAnyPopup();
                 }, 450);
