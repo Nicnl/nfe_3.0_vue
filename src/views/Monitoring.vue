@@ -182,7 +182,7 @@
                         section_length: 26549844 / 4,
                         file_length: 26549844,
 
-                        current_speed: 24658793,
+                        current_speed: 1234567890234567,
                     },
                 ]
             }
@@ -209,19 +209,27 @@
                 return (transfer.file_length - transfer.section_start - transfer.section_length) * 100.0 / transfer.file_length
             },
             speedUnit(speed) {
-                if (speed >= 10 ** 9) return 'Go/s';
-                else if (speed >= 10 ** 6) return 'Mo/s';
-                else if (speed >= 10 ** 3) return 'Ko/s';
+                let len = (speed + '').length;
+
+                if (len > 12) return 'To/s';
+                else if (len > 9) return 'Go/s';
+                else if (len > 6) return 'Mo/s';
+                else if (len > 3) return 'Ko/s';
                 else return 'o/s';
             },
             speedRound(speed) {
-                if (speed >= 10 ** 11) return (speed / 10 ** 9).toFixed(0);
-                else if (speed >= 10 ** 10) return (speed / 10 ** 9).toFixed(1);
-                else if (speed >= 10 ** 9) return (speed / 10 ** 9).toFixed(2);
-                else if (speed >= 10 ** 8) return (speed / 10 ** 6).toFixed(0);
-                else if (speed >= 10 ** 7) return (speed / 10 ** 6).toFixed(1);
-                else if (speed >= 10 ** 6) return (speed / 10 ** 6).toFixed(2);
-                else if (speed >= 10 ** 3) return (speed / 10 ** 3).toFixed(0);
+                let len = (speed + '').length;
+
+                if (len > 14) return (speed / 10 ** 12).toFixed(0);
+                else if (len > 13) return (speed / 10 ** 12).toFixed(1);
+                else if (len > 12) return (speed / 10 ** 12).toFixed(2);
+                else if (len > 11) return (speed / 10 ** 9).toFixed(0);
+                else if (len > 10) return (speed / 10 ** 9).toFixed(1);
+                else if (len > 9) return (speed / 10 ** 9).toFixed(2);
+                else if (len > 8) return (speed / 10 ** 6).toFixed(0);
+                else if (len > 7) return (speed / 10 ** 6).toFixed(1);
+                else if (len > 6) return (speed / 10 ** 6).toFixed(2);
+                else if (len > 3) return (speed / 10 ** 3).toFixed(0);
                 else return speed;
             }
         }
