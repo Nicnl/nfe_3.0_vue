@@ -1,5 +1,5 @@
 <template>
-    <div id="app" :class="['theme-' + color]">
+    <div id="app">
         <router-view name="navbar"/>
 
         <div class="app-bottom" style="height: 100%;display: table-row;">

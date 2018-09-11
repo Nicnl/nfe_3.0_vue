@@ -30,7 +30,12 @@
                     </td>
                     <td>
                         <i class="fal fa-tachometer" style="margin-right: 6px;"></i>
-                        <i class="fal fa-skull" style="margin-right: 6px;"></i>
+                        <i class="fal fa-skull kill-download" style="margin-right: 6px;cursor: pointer;" @click.self="killPopupOpen(i)" @mouseleave="killPopupClose(i)">
+                            <span class="kill-popup" v-if="transfer.killPopupOpened">
+                                <i class="fal fa-times kill-close-button" style="cursor: pointer;" @click.self="killPopupClose(i)"></i>
+                                <span class="kill-title button is-danger">Couper le téléchargement</span>
+                            </span>
+                        </i>
                         <i class="fal fa-info-circle"></i>
                     </td>
                 </tr>
@@ -41,6 +46,47 @@
 </template>
 
 <style lang="scss">
+    .kill-download {
+        position: relative;
+
+        .kill-popup {
+            position: absolute;
+
+            width: 240px;
+            height: 52px;
+
+            top: -18px;
+            right: -7px;
+
+            display: block;
+            //background-color: rgba(255, 0, 0, 0.2);
+            background-color: white;
+            box-shadow: 0 8px 8px rgba(10, 10, 10, 0.1), 0 0 0 1px rgba(10, 10, 10, 0.1);
+            border-radius: 6px;
+            cursor: default;
+
+            .kill-close-button {
+                position: absolute;
+
+                font-size: 19px;
+
+                top: 16px;
+                right: 9px;
+
+                color: #bbbbbb;
+                &:hover { color: #686868; }
+                transition: color 100ms;
+            }
+
+            .kill-title {
+                position: absolute;
+                top: 8px;
+                left: 8px;
+                font-family: BlinkMacSystemFont, -apple-system, "Segoe UI", "Roboto", "Oxygen", "Ubuntu", "Cantarell", "Fira Sans", "Droid Sans", "Helvetica Neue", "Helvetica", "Arial", sans-serif;
+            }
+        }
+    }
+
     table.table {
 
 
@@ -139,6 +185,8 @@
                         file_length: 26549844,
 
                         current_speed: 512397,
+
+                        killPopupOpened: false,
                     },
                     {
                         current_state: 1,
@@ -150,6 +198,8 @@
                         file_length: 26549844,
 
                         current_speed: 984,
+
+                        killPopupOpened: false,
                     },
                     {
                         current_state: 2,
@@ -161,6 +211,8 @@
                         file_length: 26549844,
 
                         current_speed: 12587,
+
+                        killPopupOpened: false,
                     },
                     {
                         current_state: 3,
@@ -172,6 +224,8 @@
                         file_length: 26549844,
 
                         current_speed: 1574971,
+
+                        killPopupOpened: false,
                     },
                     {
                         current_state: 4,
@@ -183,6 +237,8 @@
                         file_length: 26549844,
 
                         current_speed: 1234567890234567,
+
+                        killPopupOpened: false,
                     },
                 ]
             }
@@ -233,6 +289,13 @@
                 else if (len > 4) return (speed / 10 ** 3).toFixed(1);
                 else if (len > 3) return (speed / 10 ** 3).toFixed(2);
                 else return speed;
+            },
+            killPopupOpen(i) {
+                this.transfers[i].killPopupOpened = true;
+            },
+            killPopupClose(i) {
+                console.log(i);
+                this.transfers[i].killPopupOpened = false;
             },
         }
     }
