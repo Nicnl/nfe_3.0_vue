@@ -90,6 +90,7 @@
             -ms-transition: $bluranimation -ms-filter linear;
             -o-transition: $bluranimation -o-filter linear;
             transition: $bluranimation filter linear, $bluranimation -webkit-filter linear;
+            pointer-events: none;
         }
     }
 
@@ -534,6 +535,7 @@
                 }, 1000);
             },
             speedPopupAutoclose() {
+                return;
                 if (this.speedPopupRequest) return;
 
                 this.popupAutocloseTimeout = setTimeout(() => {
