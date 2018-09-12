@@ -30,7 +30,7 @@
                     </td>
 
                     <td>
-                        <i class="fal fa-tachometer speed-limit" style="margin-right: 6px;cursor: pointer;" @click.self="speedPopupOpen(i)">
+                        <i class="fal fa-tachometer speed-limit" :class="{'is-downloading': transfer.current_state === 0}" style="margin-right: 6px;" @click.self="speedPopupOpen(i)">
                             <span :class="{'popup-opened': speedLimitEnabled}" class="speed-popup" v-if="speedPopupOpened === i" @mouseleave="speedPopupAutoclose" @mouseenter="clearAutoclose">
                                 <i class="fal fa-times speed-close-button" :class="{'is-disabled': speedPopupRequest}" @click.self="closeAnyPopup"></i>
                                 <span class="speed-title" :class="{hidden: speedLimitEnabled}">Limiter le débit</span>
@@ -53,7 +53,7 @@
                             </span>
                         </i>
 
-                        <i class="fal fa-skull kill-download" style="margin-right: 6px;cursor: pointer;" @click.self="killPopupOpen(i)">
+                        <i class="fal fa-skull kill-download" :class="{'is-downloading': transfer.current_state === 0}" style="margin-right: 6px;" @click.self="killPopupOpen(i)">
                             <span class="kill-popup" v-if="killPopupOpened === i" @mouseleave="killPopupAutoclose" @mouseenter="clearAutoclose">
                                 <i class="fal fa-times kill-close-button" :class="{'is-disabled': killPopupRequest}" @click.self="closeAnyPopup"></i>
                                 <span class="kill-title button is-danger" :class="{'is-loading': killPopupRequest}" :disabled="killPopupRequest" @click="killPopupKill(i)">Couper le téléchargement</span>
@@ -99,8 +99,18 @@
     .kill-download {
         position: relative;
 
+        color: #e3e3e3;
+        &.is-downloading {
+            color: #aaaaaa;
+            &:hover { color: #444444; }
+            cursor: pointer;
+        }
+        transition: color 150ms;
+
         .kill-popup {
             filter: none;
+
+            color: black;
 
             position: absolute;
 
@@ -150,8 +160,18 @@
     .speed-limit {
         position: relative;
 
+        color: #e3e3e3;
+        &.is-downloading {
+            color: #aaaaaa;
+            &:hover { color: #444444; }
+            cursor: pointer;
+        }
+        transition: color 150ms;
+
         .speed-popup {
             filter: none;
+
+            color: black;
 
             position: absolute;
 
@@ -481,6 +501,7 @@
 
             killPopupOpen(i) {
                 if (this.killPopupOpened !== null && this.killPopupRequest) return;
+                if (this.transfers[i].current_state !== 0) return;
 
                 if (this.closeAnyPopup()) {
                     this.killPopupOpened = i;
@@ -510,6 +531,7 @@
 
             speedPopupOpen(i) {
                 if (this.speedPopupOpened !== null && this.speedPopupRequest) return;
+                if (this.transfers[i].current_state !== 0) return;
 
                 if (this.closeAnyPopup()) {
                     this.speedLimitEnabled = this.transfers[i].current_speed_limit !== 0;
