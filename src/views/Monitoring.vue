@@ -102,6 +102,31 @@
 </template>
 
 <style lang="scss" scoped>
+
+    $bluranimation: 135ms;
+    .blur-animated {
+        &.unblurred {
+            filter: blur(0px);
+            -webkit-transition: $bluranimation -webkit-filter linear;
+            -moz-transition: $bluranimation -moz-filter linear;
+            -moz-transition: $bluranimation filter linear;
+            -ms-transition: $bluranimation -ms-filter linear;
+            -o-transition: $bluranimation -o-filter linear;
+            transition: $bluranimation filter linear, $bluranimation -webkit-filter linear;
+        }
+
+        &.blurred {
+            filter: blur(3px);
+            -webkit-transition: $bluranimation -webkit-filter linear;
+            -moz-transition: $bluranimation -moz-filter linear;
+            -moz-transition: $bluranimation filter linear;
+            -ms-transition: $bluranimation -ms-filter linear;
+            -o-transition: $bluranimation -o-filter linear;
+            transition: $bluranimation filter linear, $bluranimation -webkit-filter linear;
+            pointer-events: none;
+        }
+    }
+
     .full-background-shadow {
         position: fixed;
 
@@ -186,30 +211,6 @@
             td {
                 font-size: 14px;
             }
-        }
-    }
-
-    .blur-animated {
-        $bluranimation: 135ms;
-        &.unblurred {
-            filter: blur(0px);
-            -webkit-transition: $bluranimation -webkit-filter linear;
-            -moz-transition: $bluranimation -moz-filter linear;
-            -moz-transition: $bluranimation filter linear;
-            -ms-transition: $bluranimation -ms-filter linear;
-            -o-transition: $bluranimation -o-filter linear;
-            transition: $bluranimation filter linear, $bluranimation -webkit-filter linear;
-        }
-
-        &.blurred {
-            filter: blur(3px);
-            -webkit-transition: $bluranimation -webkit-filter linear;
-            -moz-transition: $bluranimation -moz-filter linear;
-            -moz-transition: $bluranimation filter linear;
-            -ms-transition: $bluranimation -ms-filter linear;
-            -o-transition: $bluranimation -o-filter linear;
-            transition: $bluranimation filter linear, $bluranimation -webkit-filter linear;
-            pointer-events: none;
         }
     }
 
@@ -389,13 +390,23 @@
 
         tbody tr {
             background-color: rgba(0, 0, 0, 0);
-            transition: background-color 250ms;
-
 
             &:hover {
                 background-color: rgba(0, 0, 0, 0.05);
-                transition: background-color 100ms;
+                -webkit-transition: $bluranimation -webkit-filter linear, background-color 100ms;
+                -moz-transition: $bluranimation -moz-filter linear, background-color 100ms;
+                -moz-transition: $bluranimation filter linear, background-color 100ms;
+                -ms-transition: $bluranimation -ms-filter linear, background-color 100ms;
+                -o-transition: $bluranimation -o-filter linear, background-color 100ms;
+                transition: $bluranimation filter linear, $bluranimation -webkit-filter linear, background-color 100ms;
             }
+
+            -webkit-transition: $bluranimation -webkit-filter linear, background-color 250ms;
+            -moz-transition: $bluranimation -moz-filter linear, background-color 250ms;
+            -moz-transition: $bluranimation filter linear, background-color 250ms;
+            -ms-transition: $bluranimation -ms-filter linear, background-color 250ms;
+            -o-transition: $bluranimation -o-filter linear, background-color 250ms;
+            transition: $bluranimation filter linear, $bluranimation -webkit-filter linear, background-color 250ms;
 
             td {
                 padding-top: 0;
