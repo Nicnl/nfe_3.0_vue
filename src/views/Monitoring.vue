@@ -60,7 +60,7 @@
                             </span>
                         </i>
 
-                        <i class="fal fa-info-circle"></i>
+                        <i class="fal fa-info-circle info-button"></i>
                     </td>
                 </tr>
                 </tbody>
@@ -92,6 +92,15 @@
             transition: $bluranimation filter linear, $bluranimation -webkit-filter linear;
             pointer-events: none;
         }
+    }
+
+    .info-button {
+        position: relative;
+
+        color: #aaaaaa;
+        &:hover { color: #444444; }
+        cursor: pointer;
+        transition: color 150ms;
     }
 
 
