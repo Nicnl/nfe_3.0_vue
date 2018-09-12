@@ -60,17 +60,17 @@
                             </span>
                         </i>
 
-                        <i class="fal fa-info-circle info-button"></i>
+                        <i class="fal fa-info-circle info-button" @click="infoPopupOpen"></i>
                     </td>
                 </tr>
                 </tbody>
             </table>
         </div>
 
-        <div class="full-background-shadow"></div>
-        <div class="information-big-popup">
+        <div class="full-background-shadow" :class="{visible: informationPopupOpened}" @click="closeAnyPopup"></div>
+        <div class="information-big-popup" :class="{visible: informationPopupOpened}">
             <div class="information-popup-title">Informations supplémentaires</div>
-            <i class="fal fa-times big-popup-close"></i>
+            <i class="fal fa-times big-popup-close" @click="closeAnyPopup"></i>
             <table class="table info-popup-table">
                 <thead>
                 <tr>
@@ -114,13 +114,23 @@
         z-index: 100;
 
         background-color: rgba(0, 0, 0, 0.75);
+
+        pointer-events: none;
+        opacity: 0;
+
+        &.visible {
+            pointer-events: all;
+            opacity: 1;
+        }
+
+        transition: opacity 230ms;
     }
 
     .information-big-popup {
         position: fixed;
 
         width: 400px;
-        height: 183px;
+        height: 0;
 
         top: 85px;
         left: 0;
@@ -134,6 +144,18 @@
         background-color: #f5f7fa;
         box-shadow: 0 8px 8px rgba(10, 10, 10, 0.1), 0 0 0 1px rgba(10, 10, 10, 0.1);
         border-radius: 10px;
+
+        overflow: hidden;
+        opacity: 0;
+        pointer-events: none;
+
+        &.visible {
+            height: 183px;
+            pointer-events: all;
+            opacity: 1;
+        }
+
+        transition: opacity 200ms, height 350ms;
 
         .information-popup-title {
             position: absolute;
@@ -149,6 +171,11 @@
             top: 10px;
             right: 11px;
             font-size: 18px;
+
+            color: #aaaaaa;
+            &:hover { color: #444444; }
+            cursor: pointer;
+            transition: color 150ms;
         }
 
         table.info-popup-table.table {
@@ -453,6 +480,8 @@
                 speedLimitEnabled: null,
                 speedLimitUnit: null,
 
+                informationPopupOpened: false,
+
                 transfers: [
                     {
                         current_state: 0,
@@ -589,6 +618,7 @@
                 this.notBlurredLine = null;
                 this.killPopupOpened = null;
                 this.speedPopupOpened = null;
+                this.informationPopupOpened = false;
 
                 return true;
             },
@@ -677,6 +707,14 @@
                 else if (i == 2) return 'Mo/s';
                 else return '';
             },
+
+            infoPopupOpen() {
+                if (this.informationPopupOpened) return;
+
+                if (this.closeAnyPopup()) {
+                    this.informationPopupOpened = true;
+                }
+            }
         }
     }
 </script>
