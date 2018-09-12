@@ -38,7 +38,7 @@
     </div>
 </template>
 
-<style lang="scss">
+<style lang="scss" scoped>
     table.table {
 
 
@@ -61,7 +61,6 @@
 
                 $height: 37px;
                 height: $height;
-                line-height: $height;
                 vertical-align: middle;
 
                 a {

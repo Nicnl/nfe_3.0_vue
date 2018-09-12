@@ -26,6 +26,7 @@
 <style lang="scss">
     @import '../static/bulma-0.7.1/bulma.sass';
     @import '../static/fontawesome-pro-5.3.1-web/css/all.css';
+    @import '~pretty-checkbox/src/pretty-checkbox.scss';
     @import '../static/custom/style.scss';
 
     html, body {

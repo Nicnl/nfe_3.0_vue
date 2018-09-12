@@ -6,7 +6,7 @@
                 <tr>
                     <th width="30px"></th>
                     <th></th>
-                    <th width="50px"></th>
+                    <th width="90px"></th>
                     <th width="215px"></th>
                     <th width="95px"></th>
                 </tr>
@@ -24,16 +24,32 @@
                 <tr v-for="(transfer, i) in transfers" :key="i" class="blur-animated" :class="{blurred: notBlurredLine !== null && i !== notBlurredLine, unblurred: !(notBlurredLine !== null && i !== notBlurredLine)}">
                     <td><i class="fal" :class="stateIcon(transfer.current_state)"></i></td>
                     <td><a href="http://google.fr">{{ transfer.file_name }}</a></td>
-                    <td class="speed-indicator">{{ speedRound(transfer.current_speed) }}<span class="unit">{{ speedUnit(transfer.current_speed) }}</span></td>
+                    <td class="speed-indicator">{{ speedRound(transfer.current_speed) }}<span class="unit">{{ speedUnit(transfer.current_speed) }}</span><span v-if="transfer.current_speed_limit != 0" style="color: #df372d;"><br/><i class="fal fa-tachometer" style="margin-right: 4px;"></i>{{ speedRound(transfer.current_speed_limit) }}<span class="unit">{{ speedUnit(transfer.current_speed_limit) }}</span></span></td>
                     <td>
                         <div class="progress-bar"><div class="bar-1" :style="{width: percentBar1(transfer) + '%'}" v-if="percentBar1(transfer) > 0"></div><div class="bar-2" :style="{width: percentBar2(transfer) + '%'}" v-if="percentBar2(transfer) > 0"></div><div class="bar-3" :style="{width: percentBar3(transfer) + '%'}" v-if="percentBar3(transfer) > 0"></div><div class="bar-4" :style="{width: percentBar4(transfer) + '%'}" v-if="percentBar4(transfer) > 0"></div></div>
                     </td>
 
                     <td>
                         <i class="fal fa-tachometer speed-limit" style="margin-right: 6px;cursor: pointer;" @click.self="speedPopupOpen(i)">
-                            <span class="speed-popup" v-if="speedPopupOpened === i" @mouseleave="speedPopupAutoclose" @mouseenter="clearAutoclose">
+                            <span :class="{'popup-opened': transfer.speed_limit_enabled}" class="speed-popup" v-if="speedPopupOpened === i" @mouseleave="speedPopupAutoclose" @mouseenter="clearAutoclose">
                                 <i class="fal fa-times speed-close-button" :class="{'is-disabled': speedPopupRequest}" @click.self="closeAnyPopup"></i>
-                                <span class="speed-title button is-danger" :class="{'is-loading': speedPopupRequest}" :disabled="speedPopupRequest" @click="speedPopupKill(i)">Couper le téléchargement</span>
+                                <span class="speed-title" :class="{hidden: transfer.speed_limit_enabled}">Limiter le débit</span>
+
+                                <div class="field has-addons has-addons-centered speed-limit-form" :class="{hidden: !transfer.speed_limit_enabled}">
+                                    <p class="control"><input class="input" type="text" placeholder="Débit" v-model="transfer.speed_limit_input"></p>
+                                    <p class="control">
+                                        <span class="select">
+                                            <select v-model="transfer.speed_limit_unit">
+                                                <option value="0">o/s</option>
+                                                <option value="1">Ko/s</option>
+                                                <option value="2">Mo/s</option>
+                                            </select>
+                                        </span>
+                                    </p>
+                                    <p class="control"><a class="button is-primary"><i class="fal fa-check" style="color: white;"></i></a></p>
+                                </div>
+
+                                <div class="pretty p-switch p-fill"><input type="checkbox" v-model="transfer.speed_limit_enabled"/><div class="state p-info"><label></label></div></div>
                             </span>
                         </i>
 
@@ -53,7 +69,7 @@
     </div>
 </template>
 
-<style lang="scss">
+<style lang="scss" scoped>
     .blur-animated {
         $bluranimation: 135ms;
         &.unblurred {
@@ -138,7 +154,7 @@
 
             position: absolute;
 
-            width: 240px;
+            width: 195px;
             height: 52px;
 
             top: -18px;
@@ -150,6 +166,9 @@
             box-shadow: 0 8px 8px rgba(10, 10, 10, 0.1), 0 0 0 1px rgba(10, 10, 10, 0.1);
             border-radius: 6px;
             cursor: default;
+
+            &.popup-opened { width: 265px; }
+            transition: width 100ms;
 
             .speed-close-button {
                 position: absolute;
@@ -174,9 +193,43 @@
 
             .speed-title {
                 position: absolute;
-                top: 8px;
-                left: 8px;
+                top: 16px;
+                right: 79px;
                 font-family: BlinkMacSystemFont, -apple-system, "Segoe UI", "Roboto", "Oxygen", "Ubuntu", "Cantarell", "Fira Sans", "Droid Sans", "Helvetica Neue", "Helvetica", "Arial", sans-serif;
+                pointer-events: none;
+
+                opacity: 1;
+                &.hidden { opacity: 0; }
+                transition: opacity 150ms;
+            }
+
+            .speed-limit-form {
+                position: absolute;
+                top: 8px;
+                right: 79px;
+
+                pointer-events: all;
+
+                opacity: 1;
+                &.hidden {
+                    pointer-events: none;
+                    opacity: 0;
+                }
+                transition: opacity 200ms;
+
+                input {
+                    width: 50px;
+                }
+            }
+
+            .p-switch {
+                position: absolute;
+                top: 18px;
+                right: 34px;
+
+                label:after {
+                    top: calc((0% - (100% - 1em)) - 10%);
+                }
             }
         }
     }
@@ -203,7 +256,6 @@
 
                 $height: 37px;
                 height: $height;
-                line-height: $height;
                 vertical-align: middle;
 
                 a {
@@ -274,7 +326,7 @@
                 killPopupOpened: null,
                 killPopupRequest: null,
 
-                speedPopupOpened: null,
+                speedPopupOpened: 4,
                 speedPopupRequest: null,
 
                 transfers: [
@@ -288,6 +340,11 @@
                         file_length: 26549844,
 
                         current_speed: 512397,
+                        current_speed_limit: 550000,
+
+                        speed_limit_enabled: false,
+                        speed_limit_input: 1,
+                        speed_limit_unit: 2,
                     },
                     {
                         current_state: 1,
@@ -299,6 +356,11 @@
                         file_length: 26549844,
 
                         current_speed: 984,
+                        current_speed_limit: 0,
+
+                        speed_limit_enabled: false,
+                        speed_limit_input: 1,
+                        speed_limit_unit: 2,
                     },
                     {
                         current_state: 2,
@@ -310,6 +372,11 @@
                         file_length: 26549844,
 
                         current_speed: 12587,
+                        current_speed_limit: 0,
+
+                        speed_limit_enabled: false,
+                        speed_limit_input: 1,
+                        speed_limit_unit: 2,
                     },
                     {
                         current_state: 3,
@@ -321,6 +388,11 @@
                         file_length: 26549844,
 
                         current_speed: 1574971,
+                        current_speed_limit: 0,
+
+                        speed_limit_enabled: false,
+                        speed_limit_input: 1,
+                        speed_limit_unit: 2,
                     },
                     {
                         current_state: 4,
@@ -332,6 +404,11 @@
                         file_length: 26549844,
 
                         current_speed: 1234567890234567,
+                        current_speed_limit: 0,
+
+                        speed_limit_enabled: false,
+                        speed_limit_input: 1,
+                        speed_limit_unit: 2,
                     },
                 ]
             }
@@ -436,7 +513,7 @@
                     this.notBlurredLine = i;
                 }
             },
-            speedPopupKill() {
+            speedPopupLimit() {
                 if (this.speedPopupOpened === null) return;
                 if (this.speedPopupRequest) return;
 
@@ -456,6 +533,16 @@
                     this.closeAnyPopup();
                 }, 450);
             },
+            speedLimitChange(i) {
+                this.transfers[i].speed_limit_enabled = true;
+            },
+
+            getUnit(i) {
+                if (i == 0) return 'o/s';
+                else if (i == 1) return 'Ko/s';
+                else if (i == 2) return 'Mo/s';
+                else return '';
+            }
         }
     }
 </script>
