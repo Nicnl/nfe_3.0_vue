@@ -95,10 +95,6 @@
                     <td>Débit moyen</td>
                     <td>15.7<span style="font-size: 12px;margin-left: 3px;">Mo/s</span></td>
                 </tr>
-                <tr>
-                    <td>Client</td>
-                    <td>87.124.139.214</td>
-                </tr>
                 </tbody>
             </table>
         </div>
@@ -124,7 +120,7 @@
         position: fixed;
 
         width: 400px;
-        height: 219px;
+        height: 183px;
 
         top: 85px;
         left: 0;
