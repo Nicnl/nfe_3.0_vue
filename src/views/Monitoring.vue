@@ -31,25 +31,25 @@
 
                     <td>
                         <i class="fal fa-tachometer speed-limit" style="margin-right: 6px;cursor: pointer;" @click.self="speedPopupOpen(i)">
-                            <span :class="{'popup-opened': transfer.speed_limit_enabled}" class="speed-popup" v-if="speedPopupOpened === i" @mouseleave="speedPopupAutoclose" @mouseenter="clearAutoclose">
+                            <span :class="{'popup-opened': speedLimitEnabled}" class="speed-popup" v-if="speedPopupOpened === i" @mouseleave="speedPopupAutoclose" @mouseenter="clearAutoclose">
                                 <i class="fal fa-times speed-close-button" :class="{'is-disabled': speedPopupRequest}" @click.self="closeAnyPopup"></i>
-                                <span class="speed-title" :class="{hidden: transfer.speed_limit_enabled}">Limiter le débit</span>
+                                <span class="speed-title" :class="{hidden: speedLimitEnabled}">Limiter le débit</span>
 
-                                <div class="field has-addons has-addons-centered speed-limit-form" :class="{hidden: !transfer.speed_limit_enabled}">
-                                    <p class="control"><input class="input" type="text" placeholder="Débit" v-model="transfer.speed_limit_input"></p>
+                                <div class="field has-addons has-addons-centered speed-limit-form" :class="{hidden: !speedLimitEnabled}">
+                                    <p class="control"><input class="input" type="text" placeholder="Débit" v-model="speedLimitInput" :disabled="speedPopupRequest"></p>
                                     <p class="control">
                                         <span class="select">
-                                            <select v-model="transfer.speed_limit_unit">
+                                            <select v-model="speedLimitUnit" :disabled="speedPopupRequest">
                                                 <option value="0">o/s</option>
                                                 <option value="1">Ko/s</option>
                                                 <option value="2">Mo/s</option>
                                             </select>
                                         </span>
                                     </p>
-                                    <p class="control"><a class="button is-primary"><i class="fal fa-check" style="color: white;"></i></a></p>
+                                    <p class="control" style="color: white;"><a class="button is-primary" :class="{'is-loading': speedPopupRequest}" :disabled="speedPopupRequest" @click="speedPopupLimit(i)"><i class="fal fa-check"></i></a></p>
                                 </div>
 
-                                <div class="pretty p-switch p-fill"><input type="checkbox" v-model="transfer.speed_limit_enabled"/><div class="state p-info"><label></label></div></div>
+                                <div class="pretty p-switch p-fill"><input type="checkbox" v-model="speedLimitEnabled" :disabled="speedPopupRequest"/><div class="state p-info"><label></label></div></div>
                             </span>
                         </i>
 
@@ -324,10 +324,14 @@
                 popupAutocloseTimeout: null,
 
                 killPopupOpened: null,
-                killPopupRequest: null,
+                killPopupRequest: false,
 
                 speedPopupOpened: 4,
-                speedPopupRequest: null,
+                speedPopupRequest: false,
+
+                speedLimitInput: null,
+                speedLimitEnabled: null,
+                speedLimitUnit: null,
 
                 transfers: [
                     {
@@ -341,10 +345,6 @@
 
                         current_speed: 512397,
                         current_speed_limit: 550000,
-
-                        speed_limit_enabled: false,
-                        speed_limit_input: 1,
-                        speed_limit_unit: 2,
                     },
                     {
                         current_state: 1,
@@ -357,10 +357,6 @@
 
                         current_speed: 984,
                         current_speed_limit: 0,
-
-                        speed_limit_enabled: false,
-                        speed_limit_input: 1,
-                        speed_limit_unit: 2,
                     },
                     {
                         current_state: 2,
@@ -373,10 +369,6 @@
 
                         current_speed: 12587,
                         current_speed_limit: 0,
-
-                        speed_limit_enabled: false,
-                        speed_limit_input: 1,
-                        speed_limit_unit: 2,
                     },
                     {
                         current_state: 3,
@@ -389,10 +381,6 @@
 
                         current_speed: 1574971,
                         current_speed_limit: 0,
-
-                        speed_limit_enabled: false,
-                        speed_limit_input: 1,
-                        speed_limit_unit: 2,
                     },
                     {
                         current_state: 4,
@@ -405,10 +393,6 @@
 
                         current_speed: 1234567890234567,
                         current_speed_limit: 0,
-
-                        speed_limit_enabled: false,
-                        speed_limit_input: 1,
-                        speed_limit_unit: 2,
                     },
                 ]
             }
@@ -460,6 +444,22 @@
                 else if (len > 3) return (speed / 10 ** 3).toFixed(2);
                 else return speed;
             },
+            formSpeedUnit(speed) {
+                let len = (speed + '').length;
+
+                if (len > 6) return 2;
+                else if (len > 3) return 1;
+                else return 0;
+            },
+            formSpeedRound(speed) {
+                let len = (speed + '').length;
+
+                if (len > 6) return (speed / 10 ** 6).toFixed(2);
+                else if (len > 5) return (speed / 10 ** 3).toFixed(0);
+                else if (len > 4) return (speed / 10 ** 3).toFixed(1);
+                else if (len > 3) return (speed / 10 ** 3).toFixed(2);
+                else return speed;
+            },
             closeAnyPopup() {
                 if (this.killPopupOpened !== null && this.killPopupRequest) return false;
                 if (this.speedPopupOpened !== null && this.speedPopupRequest) return false;
@@ -484,7 +484,7 @@
                     this.notBlurredLine = i;
                 }
             },
-            killPopupKill() {
+            killPopupKill(i) {
                 if (this.killPopupOpened === null) return;
                 if (this.killPopupRequest) return;
 
@@ -509,11 +509,20 @@
                 if (this.speedPopupOpened !== null && this.speedPopupRequest) return;
 
                 if (this.closeAnyPopup()) {
+                    this.speedLimitEnabled = this.transfers[i].current_speed_limit !== 0;
+                    if (this.speedLimitEnabled) {
+                        this.speedLimitUnit = this.formSpeedUnit(this.transfers[i].current_speed_limit);
+                        this.speedLimitInput = this.formSpeedRound(this.transfers[i].current_speed_limit);
+                    } else {
+                        this.speedLimitUnit = 2;
+                        this.speedLimitInput = 1;
+                    }
+
                     this.speedPopupOpened = i;
                     this.notBlurredLine = i;
                 }
             },
-            speedPopupLimit() {
+            speedPopupLimit(i) {
                 if (this.speedPopupOpened === null) return;
                 if (this.speedPopupRequest) return;
 
@@ -542,7 +551,7 @@
                 else if (i == 1) return 'Ko/s';
                 else if (i == 2) return 'Mo/s';
                 else return '';
-            }
+            },
         }
     }
 </script>
