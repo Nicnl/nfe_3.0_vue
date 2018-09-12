@@ -1,7 +1,7 @@
 <template>
     <div class="columns is-centered">
         <div class="column is-10-desktop is-9-fullhd">
-            <table class="table">
+            <table class="table download-list">
                 <thead>
                 <tr>
                     <th width="30px"></th>
@@ -66,10 +66,106 @@
                 </tbody>
             </table>
         </div>
+
+        <div class="full-background-shadow"></div>
+        <div class="information-big-popup">
+            <div class="information-popup-title">Informations supplémentaires</div>
+            <i class="fal fa-times big-popup-close"></i>
+            <table class="table info-popup-table">
+                <thead>
+                <tr>
+                    <th></th>
+                    <th></th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr>
+                    <td>Début Téléchargement</td>
+                    <td>08/09/2018 à 11:59:07</td>
+                </tr>
+                <tr>
+                    <td>Fin Téléchargement</td>
+                    <td>-</td>
+                </tr>
+                <tr>
+                    <td>Durée</td>
+                    <td>18m 34s</td>
+                </tr>
+                <tr>
+                    <td>Débit moyen</td>
+                    <td>15.7<span style="font-size: 12px;margin-left: 3px;">Mo/s</span></td>
+                </tr>
+                <tr>
+                    <td>Client</td>
+                    <td>87.124.139.214</td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
     </div>
 </template>
 
 <style lang="scss" scoped>
+    .full-background-shadow {
+        position: fixed;
+
+        top: 0;
+        left: 0;
+
+        width: 100%;
+        height: 100%;
+
+        z-index: 100;
+
+        background-color: rgba(0, 0, 0, 0.75);
+    }
+
+    .information-big-popup {
+        position: fixed;
+
+        width: 400px;
+        height: 219px;
+
+        top: 85px;
+        left: 0;
+        right: 0;
+
+        margin-left: auto;
+        margin-right: auto;
+
+        z-index: 110;
+
+        background-color: #f5f7fa;
+        box-shadow: 0 8px 8px rgba(10, 10, 10, 0.1), 0 0 0 1px rgba(10, 10, 10, 0.1);
+        border-radius: 10px;
+
+        .information-popup-title {
+            position: absolute;
+
+            top: 6px;
+            left: 11px;
+            font-size: 16px;
+        }
+
+        .big-popup-close {
+            position: absolute;
+
+            top: 10px;
+            right: 11px;
+            font-size: 18px;
+        }
+
+        table.info-popup-table.table {
+            margin-top: 19px;
+            width: 100%;
+            background-color: transparent;
+
+            td {
+                font-size: 14px;
+            }
+        }
+    }
+
     .blur-animated {
         $bluranimation: 135ms;
         &.unblurred {
@@ -264,9 +360,7 @@
         }
     }
 
-    table.table {
-
-
+    table.table.download-list {
         width: 100%;
         background-color: #f5f7fa;
 
