@@ -327,7 +327,7 @@
                 killPopupOpened: null,
                 killPopupRequest: false,
 
-                speedPopupOpened: 4,
+                speedPopupOpened: null,
                 speedPopupRequest: false,
 
                 speedLimitInput: null,
@@ -345,7 +345,7 @@
                         file_length: 26549844,
 
                         current_speed: 512397,
-                        current_speed_limit: 550000,
+                        current_speed_limit: 654000,
                     },
                     {
                         current_state: 1,
@@ -455,7 +455,9 @@
             formSpeedRound(speed) {
                 let len = (speed + '').length;
 
-                if (len > 6) return (speed / 10 ** 6).toFixed(2);
+                if (len > 8) return (speed / 10 ** 6).toFixed(0);
+                else if (len > 7) return (speed / 10 ** 6).toFixed(1);
+                else if (len > 6) return (speed / 10 ** 6).toFixed(2);
                 else if (len > 5) return (speed / 10 ** 3).toFixed(0);
                 else if (len > 4) return (speed / 10 ** 3).toFixed(1);
                 else if (len > 3) return (speed / 10 ** 3).toFixed(2);
