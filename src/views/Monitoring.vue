@@ -60,15 +60,15 @@
                             </span>
                         </i>
 
-                        <i class="fal fa-info-circle info-button" @click="infoPopupOpen"></i>
+                        <i class="fal fa-info-circle info-button" @click="infoPopupOpen(i)"></i>
                     </td>
                 </tr>
                 </tbody>
             </table>
         </div>
 
-        <div class="full-background-shadow" :class="{visible: informationPopupOpened}" @click="closeAnyPopup"></div>
-        <div class="information-big-popup" :class="{visible: informationPopupOpened}">
+        <div class="full-background-shadow" :class="{visible: informationPopupOpened !== null}" @click="closeAnyPopup"></div>
+        <div class="information-big-popup" :class="{visible: informationPopupOpened !== null}">
             <div class="information-popup-title">Informations supplémentaires</div>
             <i class="fal fa-times big-popup-close" @click="closeAnyPopup"></i>
             <table class="table info-popup-table">
@@ -81,19 +81,22 @@
                 <tbody>
                 <tr>
                     <td>Début Téléchargement</td>
-                    <td>08/09/2018 à 11:59:07</td>
+                    <td v-if="informationPopupOpened !== null">{{ niceDate(transfers[informationPopupOpened].start_date) }}</td>
                 </tr>
                 <tr>
                     <td>Fin Téléchargement</td>
-                    <td>-</td>
+                    <td v-if="informationPopupOpened !== null">{{ transfers[informationPopupOpened].end_date ? niceDate(transfers[informationPopupOpened].end_date) : '-' }}</td>
                 </tr>
                 <tr>
                     <td>Durée</td>
-                    <td>18m 34s</td>
+                    <td v-if="informationPopupOpened !== null">{{ niceTime(informationPopupDuration) }}</td>
                 </tr>
                 <tr>
                     <td>Débit moyen</td>
-                    <td>15.7<span style="font-size: 12px;margin-left: 3px;">Mo/s</span></td>
+                    <td v-if="informationPopupOpened !== null">
+                        <template v-if="transfers[informationPopupOpened].end_date">{{speedRound((transfers[informationPopupOpened].section_length - transfers[informationPopupOpened].downloaded) / (transfers[informationPopupOpened].end_date - transfers[informationPopupOpened].start_date)) }}<span style="font-size: 12px;margin-left: 3px;">{{ speedUnit((transfers[informationPopupOpened].section_length - transfers[informationPopupOpened].downloaded) / (transfers[informationPopupOpened].end_date - transfers[informationPopupOpened].start_date)) }}</span></template>
+                        <template v-else>{{ speedRound((transfers[informationPopupOpened].section_length - transfers[informationPopupOpened].downloaded) / informationPopupDuration) }}<span style="font-size: 12px;margin-left: 3px;">{{ speedUnit((transfers[informationPopupOpened].section_length - transfers[informationPopupOpened].downloaded) / informationPopupDuration) }}</span></template>
+                    </td>
                 </tr>
                 </tbody>
             </table>
@@ -491,7 +494,9 @@
                 speedLimitEnabled: null,
                 speedLimitUnit: null,
 
-                informationPopupOpened: false,
+                informationPopupOpened: null,
+                informationPopupDurationInterval: null,
+                informationPopupDuration: 0,
 
                 transfers: [
                     {
@@ -502,6 +507,9 @@
                         downloaded: 26549844 / 2,
                         section_length: 26549844,
                         file_length: 26549844,
+
+                        start_date: 1536854285,
+                        end_date: null,
 
                         current_speed: 512397,
                         current_speed_limit: 654000,
@@ -515,6 +523,9 @@
                         section_length: 26549844 / 2,
                         file_length: 26549844,
 
+                        start_date: 1536854285,
+                        end_date: 1536854285 + 60,
+
                         current_speed: 984,
                         current_speed_limit: 0,
                     },
@@ -526,6 +537,9 @@
                         downloaded: 26549844 / 6,
                         section_length: 26549844 / 3,
                         file_length: 26549844,
+
+                        start_date: 1536854285,
+                        end_date: 1536854285 + 164,
 
                         current_speed: 12587,
                         current_speed_limit: 0,
@@ -539,6 +553,9 @@
                         section_length: 26549844 / 2,
                         file_length: 26549844,
 
+                        start_date: 1536854285,
+                        end_date: 1536854285 + 286,
+
                         current_speed: 1574971,
                         current_speed_limit: 0,
                     },
@@ -550,6 +567,9 @@
                         downloaded: 26549844 / 8,
                         section_length: 26549844 / 4,
                         file_length: 26549844,
+
+                        start_date: 1536854285,
+                        end_date: 1536854285 + 652,
 
                         current_speed: 1234567890234567,
                         current_speed_limit: 0,
@@ -579,6 +599,7 @@
                 return (transfer.file_length - transfer.section_start - transfer.section_length) * 100.0 / transfer.file_length
             },
             speedUnit(speed) {
+                speed = Math.floor(speed);
                 let len = (speed + '').length;
 
                 if (len > 12) return 'To/s';
@@ -588,6 +609,7 @@
                 else return 'o/s';
             },
             speedRound(speed) {
+                speed = Math.floor(speed);
                 let len = (speed + '').length;
 
                 if (len > 14) return (speed / 10 ** 12).toFixed(0);
@@ -605,6 +627,7 @@
                 else return speed;
             },
             formSpeedUnit(speed) {
+                speed = Math.floor(speed);
                 let len = (speed + '').length;
 
                 if (len > 6) return 2;
@@ -612,6 +635,7 @@
                 else return 0;
             },
             formSpeedRound(speed) {
+                speed = Math.floor(speed);
                 let len = (speed + '').length;
 
                 if (len > 8) return (speed / 10 ** 6).toFixed(0);
@@ -626,10 +650,15 @@
                 if (this.killPopupOpened !== null && this.killPopupRequest) return false;
                 if (this.speedPopupOpened !== null && this.speedPopupRequest) return false;
 
+                if (this.informationPopupDurationInterval !== null) {
+                    clearInterval(this.informationPopupDurationInterval);
+                    this.informationPopupDurationInterval = null;
+                }
+
                 this.notBlurredLine = null;
                 this.killPopupOpened = null;
                 this.speedPopupOpened = null;
-                this.informationPopupOpened = false;
+                this.informationPopupOpened = null;
 
                 return true;
             },
@@ -719,13 +748,48 @@
                 else return '';
             },
 
-            infoPopupOpen() {
-                if (this.informationPopupOpened) return;
+            infoPopupOpen(i) {
+                if (this.informationPopupOpened !== null) return;
 
                 if (this.closeAnyPopup()) {
-                    this.informationPopupOpened = true;
+                    this.informationPopupStartDate = this.transfers[i].start_date;
+                    this.informationPopupEndDate = this.transfers[i].end_date;
+                    this.informationPopupDuration = Math.floor(Date.now() / 1000) - this.transfers[i].start_date;
+                    this.informationPopupEndDate = this.transfers[i].end_date;
+
+                    if (this.informationPopupDurationInterval !== null) {
+                        clearInterval(this.informationPopupDurationInterval);
+                        this.informationPopupDurationInterval = null;
+                    }
+
+                    if (this.transfers[i].current_state === 0) {
+                        this.informationPopupDurationInterval = setInterval(() => {
+                            if (this.transfers[i].current_state !== 0) {
+                                if (this.informationPopupDurationInterval !== null) {
+                                    clearInterval(this.informationPopupDurationInterval);
+                                    this.informationPopupDurationInterval = null;
+                                }
+                                return;
+                            }
+                            this.informationPopupDuration++;
+                        }, 1000)
+                    }
+
+                    this.informationPopupOpened = i;
                 }
-            }
+            },
+
+            niceTime(seconds) {
+                let date = new Date(null);
+                date.setSeconds(seconds); // specify value for SECONDS here
+                return date.toISOString().substr(11, 8);
+            },
+
+            niceDate(seconds) {
+                let date = new Date(null);
+                date.setSeconds(seconds); // specify value for SECONDS here
+                return date.toISOString().substr(0, 19).replace('T', ' ');
+            },
         }
     }
 </script>
