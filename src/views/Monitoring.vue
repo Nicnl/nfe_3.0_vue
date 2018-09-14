@@ -31,7 +31,7 @@
 
                     <td>
                         <i class="fal fa-tachometer speed-limit" :class="{'is-downloading': transfer.current_state === 0}" style="margin-right: 6px;" @click.self="speedPopupOpen(i)">
-                            <span :class="{'popup-opened': speedLimitEnabled}" class="speed-popup" v-if="speedPopupOpened === i" @mouseleave="speedPopupAutoclose" @mouseenter="clearAutoclose">
+                            <span :class="{'popup-opened-big': speedLimitEnabled && popupSetOpeningClass, 'popup-opened-mini': !speedLimitEnabled && popupSetOpeningClass}" class="speed-popup" v-if="speedPopupOpened === i" @mouseleave="speedPopupAutoclose" @mouseenter="clearAutoclose">
                                 <i class="fal fa-times speed-close-button" :class="{'is-disabled': speedPopupRequest}" @click.self="closeAnyPopup"></i>
                                 <span class="speed-title" :class="{hidden: speedLimitEnabled}">Limiter le débit</span>
 
@@ -246,7 +246,16 @@
 
             position: absolute;
 
+            @keyframes kill-popup-open-animation {
+                0% { width: 0; opacity: 0; }
+                100% { width: 240px; opacity: 1; }
+            }
+            animation: kill-popup-open-animation 200ms;
+
+            opacity: 1;
             width: 240px;
+            overflow: hidden;
+
             height: 52px;
 
             top: -18px;
@@ -283,7 +292,7 @@
             .kill-title {
                 position: absolute;
                 top: 8px;
-                left: 8px;
+                right: 32px;
                 font-family: BlinkMacSystemFont, -apple-system, "Segoe UI", "Roboto", "Oxygen", "Ubuntu", "Cantarell", "Fira Sans", "Droid Sans", "Helvetica Neue", "Helvetica", "Arial", sans-serif;
             }
         }
@@ -307,7 +316,9 @@
 
             position: absolute;
 
-            width: 195px;
+            overflow: hidden;
+
+            opacity: 1;
             height: 52px;
 
             top: -18px;
@@ -320,8 +331,10 @@
             border-radius: 6px;
             cursor: default;
 
-            &.popup-opened { width: 265px; }
-            transition: width 100ms;
+            width: 0px;
+            &.popup-opened-mini { width: 195px; }
+            &.popup-opened-big { width: 265px; }
+            transition: width 200ms;
 
             .speed-close-button {
                 position: absolute;
@@ -354,6 +367,9 @@
                 opacity: 1;
                 &.hidden { opacity: 0; }
                 transition: opacity 150ms;
+
+                white-space: nowrap;
+                text-overflow: clip;
             }
 
             .speed-limit-form {
@@ -489,6 +505,7 @@
 
                 speedPopupOpened: null,
                 speedPopupRequest: false,
+                popupSetOpeningClass: false,
 
                 speedLimitInput: null,
                 speedLimitEnabled: null,
@@ -512,7 +529,7 @@
                         end_date: null,
 
                         current_speed: 512397,
-                        current_speed_limit: 654000,
+                        current_speed_limit: 0,
                     },
                     {
                         current_state: 1,
@@ -657,6 +674,7 @@
 
                 this.notBlurredLine = null;
                 this.killPopupOpened = null;
+                this.popupSetOpeningClass = false;
                 this.speedPopupOpened = null;
                 this.informationPopupOpened = null;
 
@@ -713,6 +731,7 @@
                     }
 
                     this.speedPopupOpened = i;
+                    setTimeout(() => { this.popupSetOpeningClass = true; }, 20);
                     this.notBlurredLine = i;
                 }
             },
