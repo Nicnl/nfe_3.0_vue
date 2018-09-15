@@ -34,10 +34,20 @@
         height: 100%;
         background-color: #f5f7fa;
 
+        &::-webkit-scrollbar {
+            width: 4px;
+        }
+
+        &::-webkit-scrollbar-thumb {
+            background-color: #808080;
+            border-radius: 3px;
+        }
+
         #app {
             position: absolute;
             height: 100%;
             width: 100%;
+            background-color: #f5f7fa;
 
             display: table;
         }
