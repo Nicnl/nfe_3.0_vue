@@ -21,12 +21,16 @@
                 </tr>
                 </tfoot>
                 <tbody>
+                <tr v-if="!transfers.length">
+                    <td colspan="5"><h3 style="text-align: center;font-weight: 300;">Aucun transferts</h3></td>
+                </tr>
+
                 <tr v-for="(transfer, i) in transfers" :key="i" class="blur-animated" :class="{blurred: notBlurredLine !== null && i !== notBlurredLine, unblurred: !(notBlurredLine !== null && i !== notBlurredLine)}">
                     <td><i class="fal" :class="stateIcon(transfer.current_state)"></i></td>
                     <td><a href="http://google.fr">{{ transfer.file_name }}</a></td>
                     <td class="speed-indicator">{{ speedRound(transfer.current_speed) }}<span class="unit">{{ speedUnit(transfer.current_speed) }}</span><span v-if="transfer.current_speed_limit != 0" style="color: #df372d;"><br/><i class="fal fa-tachometer" style="margin-right: 4px;"></i>{{ speedRound(transfer.current_speed_limit) }}<span class="unit">{{ speedUnit(transfer.current_speed_limit) }}</span></span></td>
                     <td>
-                        <div class="progress-bar"><div class="bar-1" :style="{width: percentBar1(transfer) + '%'}" v-if="percentBar1(transfer) > 0"></div><div class="bar-2" :style="{width: percentBar2(transfer) + '%'}" v-if="percentBar2(transfer) > 0"></div><div class="bar-3" :style="{width: percentBar3(transfer) + '%'}" v-if="percentBar3(transfer) > 0"></div><div class="bar-4" :style="{width: percentBar4(transfer) + '%'}" v-if="percentBar4(transfer) > 0"></div></div>
+                        <div class="progress-bar"><div class="bar-1" :style="{width: percentBar1(transfer) + '%'}" v-if="percentBar1(transfer) > 0"></div><div class="bar-2" :style="{width: percentBar2(transfer) + '%'}" v-if="percentBar2(transfer) > 0"></div><div class="bar-3" :style="{width: percentBar3(transfer) + '%'}" v-if="percentBar3(transfer) > 0"></div><div class="bar-4" :style="{width: percentBar4(transfer) + '%'}" v-if="percentBar4(transfer) > 0"></div><h5 class="progress-percentage">{{ transfer.downloaded / transfer.section_length * 100 }}%</h5></div>
                     </td>
 
                     <td>
@@ -458,11 +462,12 @@
     }
 
     .progress-bar {
+        position: relative;
         $height: 4px;
         height: $height;
         width: 100%;
         display: inline-block;
-        transform: translateY(-3px);
+        //transform: translateY(-3px);
 
 
         .bar-1, .bar-2, .bar-3, .bar-4 {
@@ -488,6 +493,21 @@
         div:last-child {
             border-top-right-radius: $height;
             border-bottom-right-radius: $height;
+        }
+
+        .progress-percentage {
+            position: absolute;
+
+            top: -5px;
+            left: 0;
+            width: 100%;
+            text-align: center;
+            height: 8px;
+
+            font-size: 11px;
+            font-weight: 300;
+
+            color: #444444;
         }
     }
 </style>
