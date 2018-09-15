@@ -596,22 +596,27 @@
                 ],
 
                 refreshTimeout: null,
+                cancelRefreshTimeout: false,
             }
         },
         created() {
-            let callback;
-            this.fetchTransfers(callback = () => {
-                console.log('done');
+            this.fetchTransfers(this.startTimeoutFetchTransfers);
+        },
+        beforeDestroy() {
+            if (this.refreshTimeout !== null) clearInterval(this.refreshTimeout);
+            this.cancelRefreshTimeout = true;
+        },
+        methods: {
+            startTimeoutFetchTransfers() {
                 if (this.refreshTimeout !== null) clearInterval(this.refreshTimeout);
+                if (this.cancelRefreshTimeout) return;
 
                 this.refreshTimeout = setTimeout(() => {
                     this.refreshTimeout = null;
 
-                    this.fetchTransfers(callback);
+                    this.fetchTransfers(this.startTimeoutFetchTransfers);
                 }, 500);
-            });
-        },
-        methods: {
+            },
             fetchTransfers(doneCallback) {
                 this.$axios.get(this.$url + '/transfers')
                     .then((response) => {
