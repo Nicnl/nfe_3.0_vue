@@ -77,7 +77,7 @@
 
             <div class="field link-text-area">
                 <div class="control is-small" :class="{'is-loading': generatingLinkRequest}">
-                    <textarea class="textarea is-small" type="text" placeholder="" readonly></textarea>
+                    <textarea class="textarea is-small" type="text" placeholder="" v-model="generatedLink" readonly></textarea>
                 </div>
             </div>
         </div>
@@ -201,7 +201,20 @@
             bottom: 0;
 
             textarea {
+                resize: none;
                 min-height: 65px;
+
+                font-weight: 300;
+                color: #868686;
+
+                &::-webkit-scrollbar {
+                    width: 4px;
+                }
+
+                &::-webkit-scrollbar-thumb {
+                    background-color: #808080;
+                    border-radius: 3px;
+                }
             }
         }
 
@@ -390,6 +403,8 @@
                 timeLimitInput: 15,
                 timeLimitEnabled: true,
                 timeLimitUnit: 60,
+
+                generatedLink: 'https://download.nicnl.com/e946c22fb68d859aef10d2bd0137baaddc231248f1a8f8517ed85db3d9f213caaa8c2eef7d7b1466fb70dcc0b71d00937b59306051b1d1ba17e4ea65345f34f5a542fa6174bc5f55e9ce90540bf284d581e08523eb154b0540902eb9c1a056fe-a5d34ef6dc/appIcon.png',
 
                 dirs: [
                     {
