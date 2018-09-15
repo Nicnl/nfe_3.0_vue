@@ -38,16 +38,57 @@
 
 
         <div class="full-background-shadow" :class="{visible: shareFilePopupOpened || shareDirPopupOpened}" @click="closeAnyPopup"></div>
-        <div class="share-file-popup" :class="{visible: shareFilePopupOpened}"></div>
-        <div class="share-dir-popup" :class="{visible: shareDirPopupOpened}"></div>
+        <div class="share-popup" :class="{visible: shareFilePopupOpened || shareDirPopupOpened}">
+            <div class="share-title"><h4>Partager un {{ shareFilePopupOpened && !shareDirPopupOpened ? 'fichier' : '' }}{{ !shareFilePopupOpened && shareDirPopupOpened ? 'dossier' : '' }}</h4></div>
+
+            <div class="pretty p-switch p-fill speed-limit-checkbox"><input type="checkbox" v-model="speedLimitEnabled"/><div class="state p-info"><label></label></div></div>
+            <h4 class="limit-speed-title">Limiter le débit</h4>
+
+            <div class="field has-addons has-addons-centered speed-limit-form" :class="{hidden: !speedLimitEnabled}">
+                <p class="control"><input class="input" type="text" placeholder="Débit" v-model="speedLimitInput"></p>
+                <p class="control">
+                    <span class="select">
+                        <select v-model="speedLimitUnit">
+                            <option value="0">o/s</option>
+                            <option value="1">Ko/s</option>
+                            <option value="2">Mo/s</option>
+                        </select>
+                    </span>
+                </p>
+            </div>
+
+            <div class="pretty p-switch p-fill time-limit-checkbox"><input type="checkbox" v-model="timeLimitEnabled"/><div class="state p-info"><label></label></div></div>
+            <h4 class="limit-time-title">Limiter la durée</h4>
+
+            <div class="field has-addons has-addons-centered time-limit-form" :class="{hidden: !timeLimitEnabled}">
+                <p class="control"><input class="input" type="text" placeholder="Débit" v-model="timeLimitInput"></p>
+                <p class="control">
+                    <span class="select">
+                        <select v-model="timeLimitUnit">
+                            <option :value="1">secondes</option>
+                            <option :value="1 * 60">minutes</option>
+                            <option :value="1 * 60 * 60">heures</option>
+                            <option :value="1 * 60 * 60 * 24">jours</option>
+                            <option :value="1 * 60 * 60 * 24 * 7">semaines</option>
+                        </select>
+                    </span>
+                </p>
+            </div>
+
+            <div class="field link-text-area">
+                <div class="control is-small" :class="{'is-loading': generatingLinkRequest}">
+                    <textarea class="textarea is-small" type="text" placeholder="" readonly></textarea>
+                </div>
+            </div>
+        </div>
     </div>
 </template>
 
 <style lang="scss" scoped>
-    .share-file-popup {
+    .share-popup {
         position: fixed;
 
-        width: 400px;
+        width: 370px;
         height: 0;
 
         top: 85px;
@@ -68,44 +109,124 @@
         pointer-events: none;
 
         &.visible {
-            height: 183px;
+            height: 200px;
             pointer-events: all;
             opacity: 1;
         }
 
         transition: opacity 200ms, height 350ms;
-    }
 
-    .share-dir-popup {
-        position: fixed;
-
-        width: 400px;
-        height: 0;
-
-        top: 85px;
-        left: 0;
-        right: 0;
-
-        margin-left: auto;
-        margin-right: auto;
-
-        z-index: 110;
-
-        background-color: #f5f7fa;
-        box-shadow: 0 8px 8px rgba(10, 10, 10, 0.1), 0 0 0 1px rgba(10, 10, 10, 0.1);
-        border-radius: 10px;
-
-        overflow: hidden;
-        opacity: 0;
-        pointer-events: none;
-
-        &.visible {
-            height: 183px;
-            pointer-events: all;
-            opacity: 1;
+        .share-title {
+            position: absolute;
+            top: 3px;
+            width: 100%;
+            background-color: #edeff2;
+            border-bottom: 1px solid rgba(0, 0, 0, 0.12);
+            h4 {
+                font-size: 16px;
+                margin-left: 4px;
+            }
         }
 
-        transition: opacity 200ms, height 350ms;
+        .limit-speed-title {
+            position: absolute;
+            top: 44px;
+            left: 57px;
+
+            font-size: 15px;
+            font-weight: 300;
+
+            opacity: 1;
+            pointer-events: all;
+
+            &.hidden {
+                opacity: 0;
+                pointer-events: none;
+            }
+
+            transition: opacity 200ms;
+        }
+
+        .limit-time-title {
+            position: absolute;
+            top: 91px;
+            left: 57px;
+
+            font-size: 15px;
+            font-weight: 300;
+
+            opacity: 1;
+            pointer-events: all;
+
+            &.hidden {
+                opacity: 0;
+                pointer-events: none;
+            }
+
+            transition: opacity 200ms;
+        }
+
+        .link-text-area {
+            position: absolute;
+
+            width: 100%;
+
+            background-color: red;
+
+            left: 0;
+            bottom: 0;
+
+            textarea {
+                min-height: 65px;
+            }
+        }
+
+        .p-switch {
+            position: absolute;
+            left: 15px;
+
+            &.speed-limit-checkbox { top: 49px; }
+            &.time-limit-checkbox { top: 96px; }
+        }
+
+        .p-switch label:after {
+            // hotfix
+            top: calc((0% - (100% - 1em)) - 10%);
+        }
+
+        .speed-limit-form {
+            position: absolute;
+            top: 38px;
+            left: 170px;
+
+            input {
+                width: 65px;
+            }
+
+            opacity: 1;
+            &.hidden {
+                pointer-events: none;
+                opacity: 0;
+            }
+            transition: opacity 200ms;
+        }
+
+        .time-limit-form {
+            position: absolute;
+            top: 85px;
+            left: 170px;
+
+            input {
+                width: 65px;
+            }
+
+            opacity: 1;
+            &.hidden {
+                pointer-events: none;
+                opacity: 0;
+            }
+            transition: opacity 200ms;
+        }
     }
 
     .full-background-shadow {
@@ -196,7 +317,6 @@
             'vagrantfile'
         ]
     };
-
     const iconRules = {
         'fa-file-word': ['doc', 'docx', 'dot', 'odt', 'ott', 'oth', 'odm', 'sxw', 'stw', 'sxg', 'docm', 'dotx'],
         'fa-file-video': ['mp4', 'mov', 'webm', 'mkv', 'avi', 'wmv', 'm4p', 'mp4a', 'mp4v', 'm4v', 'mpg', 'mpeg', 'flv', 'vob', 'xvid'],
@@ -231,8 +351,19 @@
         name: 'ListFiles',
         data () {
             return {
-                shareFilePopupOpened: false,
+                shareFilePopupOpened: true,
                 shareDirPopupOpened: false,
+
+                generatingLinkRequest: false,
+
+                speedLimitInput: 1,
+                speedLimitEnabled: false,
+                speedLimitUnit: 0,
+
+                timeLimitInput: 15,
+                timeLimitEnabled: true,
+                timeLimitUnit: 60,
+
                 dirs: [
                     {
                         name: 'Windows',
