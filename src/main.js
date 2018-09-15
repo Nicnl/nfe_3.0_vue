@@ -21,7 +21,7 @@ Object.defineProperties(Vue.prototype, {
         get: () => eventBus
     },
     $url: {
-        get: () => 'https://api.manadja.nicnl.com'
+        get: () => 'http://vmshare.nicnl.com:9001'
     }
 });
 

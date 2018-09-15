@@ -516,20 +516,21 @@
                 informationPopupDuration: 0,
 
                 transfers: [
+                    /*
                     {
-                        current_state: 0,
-                        file_name: 'Win10_1703_French_x64.iso',
+                        current_state: 0, // ok
+                        file_name: 'Win10_1703_French_x64.iso', // ok
 
-                        section_start: 0,
-                        downloaded: 26549844 / 2,
-                        section_length: 26549844,
-                        file_length: 26549844,
+                        section_start: 0, // ok
+                        downloaded: 26549844 / 2, // ok
+                        section_length: 26549844, // ok
+                        file_length: 26549844, // ok
 
-                        start_date: 1536854285,
-                        end_date: null,
+                        start_date: 1536854285, // ok
+                        end_date: 0, // ok
 
-                        current_speed: 512397,
-                        current_speed_limit: 0,
+                        current_speed: 512397, // ok
+                        current_speed_limit: 0, // ok
                     },
                     {
                         current_state: 1,
@@ -591,10 +592,37 @@
                         current_speed: 1234567890234567,
                         current_speed_limit: 0,
                     },
-                ]
+                    */
+                ],
+
+                refreshTimeout: null,
             }
         },
+        created() {
+            let callback;
+            this.fetchTransfers(callback = () => {
+                console.log('done');
+                if (this.refreshTimeout !== null) clearInterval(this.refreshTimeout);
+
+                this.refreshTimeout = setTimeout(() => {
+                    this.refreshTimeout = null;
+
+                    this.fetchTransfers(callback);
+                }, 500);
+            });
+        },
         methods: {
+            fetchTransfers(doneCallback) {
+                this.$axios.get(this.$url + '/transfers')
+                    .then((response) => {
+                        this.transfers = response.data;
+
+                        doneCallback();
+                    })
+                    .catch((error) => {
+                        doneCallback();
+                    });
+            },
             stateIcon(state) {
                 if (state === 0 /*StateTransferring*/) return 'fa-upload';
                 else if (state === 1 /*StateFinished*/) return 'fa-check';
