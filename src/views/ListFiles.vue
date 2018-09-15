@@ -20,15 +20,20 @@
                 </tfoot>
                 <tbody>
 
+                <tr class="blur-animated" :class="{blurred: notBlurredDir !== null, unblurred: notBlurredDir === null}" v-if="parent_path !== null">
+                    <td><i class="fal fa-folders"></i></td>
+                    <td colspan="3"><router-link :to="{ name: 'ListFilesM', params: { path: parent_path } }">..</router-link></td>
+                </tr>
+
                 <tr v-for="(dir, i) in dirs" :key="'dir' + i" class="blur-animated" :class="{blurred: notBlurredDir !== null && i !== notBlurredDir, unblurred: !(notBlurredDir !== null && i !== notBlurredDir)}">
                     <td><i class="fal fa-folder"></i></td>
-                    <td colspan="2"><a href="http://google.fr">{{ dir.name }}</a></td>
+                    <td colspan="2"><router-link :to="{ name: 'ListFilesM', params: { path: dir.path } }">{{ dir.name }}</router-link></td>
                     <td class="share-button" @click="openShareDirPopup(i)"><i class="fal fa-share-square"></i></td>
                 </tr>
 
                 <tr v-for="(file, i) in files" :key="'file' + i" class="blur-animated" :class="{blurred: notBlurredFile !== null && i !== notBlurredFile, unblurred: !(notBlurredFile !== null && i !== notBlurredFile)}">
                     <td><i class="fal" :class="icon(file.name)"></i></td>
-                    <td><a href="http://google.fr">{{ file.name }}</a></td>
+                    <td><a :href="$downurl + '/' + file.path">{{ file.name }}</a></td>
                     <td><span class="size">{{ sizeRound(file.size) }}</span><span class="extension">{{ sizeUnit(file.size) }}</span></td>
                     <td class="share-button" @click="openShareFilePopup(i)"><i class="fal fa-share-square"></i></td>
                 </tr>
@@ -406,16 +411,18 @@
 
                 generatedLink: 'https://download.nicnl.com/e946c22fb68d859aef10d2bd0137baaddc231248f1a8f8517ed85db3d9f213caaa8c2eef7d7b1466fb70dcc0b71d00937b59306051b1d1ba17e4ea65345f34f5a542fa6174bc5f55e9ce90540bf284d581e08523eb154b0540902eb9c1a056fe-a5d34ef6dc/appIcon.png',
 
-                dirs: [
+                path: null,
+                parent_path: null,
+                dirs: [/*
                     {
                         name: 'Windows',
                     },
                     {
                         name: 'Linux',
                     },
-                ],
+                */],
                 files: [
-                    {
+                    /*{
                         name: 'document.doc',
                         size: 4136749512
                     },
@@ -458,11 +465,36 @@
                     {
                         name: 'Dockerfile',
                         size: 8718
-                    },
+                    },*/
                 ],
             }
         },
+        created() {
+            this.fetchList(this.routePath);
+        },
+        watch: {
+            '$route.params.path': function(path) {
+                this.fetchList(this.routePath);
+            },
+        },
+        computed: {
+            routePath() {
+                return this.$route.params.path ? this.$route.params.path : '';
+            },
+        },
         methods: {
+            fetchList(path) {
+                this.$axios.get(this.$url + '/ls/' + path)
+                    .then((response) => {
+                        this.path = response.data.path;
+                        this.parent_path = response.data.parent_path;
+                        this.dirs = response.data.dirs;
+                        this.files = response.data.files;
+                    })
+                    .catch((err) => {
+                        console.log(err); // Todo: afficher l'erreur
+                    })
+            },
             sizeUnit(speed) {
                 let len = (speed + '').length;
 

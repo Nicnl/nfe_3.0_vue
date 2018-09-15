@@ -19,8 +19,16 @@ const router = new Router({
             },
         },
         {
-            path: '/list',
+            path: '/explore/',
             name: 'ListFiles',
+            components: {
+                default: ListFiles,
+                navbar: NavBar
+            },
+        },
+        {
+            path: '/explore/:path',
+            name: 'ListFilesM',
             components: {
                 default: ListFiles,
                 navbar: NavBar
