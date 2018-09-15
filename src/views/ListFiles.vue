@@ -22,7 +22,10 @@
 
                 <tr class="blur-animated" :class="{blurred: notBlurredDir !== null, unblurred: notBlurredDir === null}" v-if="parent_path !== null">
                     <td><i class="fal fa-folders"></i></td>
-                    <td colspan="3"><router-link :to="{ name: 'ListFilesM', params: { path: parent_path } }">..</router-link></td>
+                    <td colspan="3">
+                        <router-link :to="{ name: 'ListFilesM', params: { path: parent_path } }" v-if="parent_path !== ''">..</router-link>
+                        <router-link :to="{ name: 'ListFiles' }" v-if="parent_path === ''">..</router-link>
+                    </td>
                 </tr>
 
                 <tr v-for="(dir, i) in dirs" :key="'dir' + i" class="blur-animated" :class="{blurred: notBlurredDir !== null && i !== notBlurredDir, unblurred: !(notBlurredDir !== null && i !== notBlurredDir)}">
