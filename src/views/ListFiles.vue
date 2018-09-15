@@ -20,17 +20,17 @@
                 </tfoot>
                 <tbody>
 
-                <tr v-for="(dir, i) in dirs" :key="'dir' + i">
+                <tr v-for="(dir, i) in dirs" :key="'dir' + i" class="blur-animated" :class="{blurred: notBlurredDir !== null && i !== notBlurredDir, unblurred: !(notBlurredDir !== null && i !== notBlurredDir)}">
                     <td><i class="fal fa-folder"></i></td>
                     <td colspan="2"><a href="http://google.fr">{{ dir.name }}</a></td>
-                    <td class="share-button" @click="openShareDirPopup"><i class="fal fa-share-square"></i></td>
+                    <td class="share-button" @click="openShareDirPopup(i)"><i class="fal fa-share-square"></i></td>
                 </tr>
 
-                <tr v-for="(file, i) in files" :key="'file' + i">
+                <tr v-for="(file, i) in files" :key="'file' + i" class="blur-animated" :class="{blurred: notBlurredFile !== null && i !== notBlurredFile, unblurred: !(notBlurredFile !== null && i !== notBlurredFile)}">
                     <td><i class="fal" :class="icon(file.name)"></i></td>
                     <td><a href="http://google.fr">{{ file.name }}</a></td>
                     <td><span class="size">{{ sizeRound(file.size) }}</span><span class="extension">{{ sizeUnit(file.size) }}</span></td>
-                    <td class="share-button" @click="openShareFilePopup"><i class="fal fa-share-square"></i></td>
+                    <td class="share-button" @click="openShareFilePopup(i)"><i class="fal fa-share-square"></i></td>
                 </tr>
                 </tbody>
             </table>
@@ -85,6 +85,30 @@
 </template>
 
 <style lang="scss" scoped>
+    $bluranimation: 135ms;
+    .blur-animated {
+        &.unblurred {
+            filter: blur(0px);
+            -webkit-transition: $bluranimation -webkit-filter linear;
+            -moz-transition: $bluranimation -moz-filter linear;
+            -moz-transition: $bluranimation filter linear;
+            -ms-transition: $bluranimation -ms-filter linear;
+            -o-transition: $bluranimation -o-filter linear;
+            transition: $bluranimation filter linear, $bluranimation -webkit-filter linear;
+        }
+
+        &.blurred {
+            filter: blur(3px);
+            -webkit-transition: $bluranimation -webkit-filter linear;
+            -moz-transition: $bluranimation -moz-filter linear;
+            -moz-transition: $bluranimation filter linear;
+            -ms-transition: $bluranimation -ms-filter linear;
+            -o-transition: $bluranimation -o-filter linear;
+            transition: $bluranimation filter linear, $bluranimation -webkit-filter linear;
+            pointer-events: none;
+        }
+    }
+
     .share-popup {
         position: fixed;
 
@@ -351,6 +375,9 @@
         name: 'ListFiles',
         data () {
             return {
+                notBlurredFile: null,
+                notBlurredDir: null,
+
                 shareFilePopupOpened: true,
                 shareDirPopupOpened: false,
 
@@ -466,18 +493,29 @@
                 return 'fa-file';
             },
             closeAnyPopup() {
+                if (this.generatingLinkRequest) return false;
+
                 this.shareFilePopupOpened = false;
                 this.shareDirPopupOpened = false;
 
+                this.notBlurredFile = null;
+                this.notBlurredDir = null;
+
                 return true;
             },
-            openShareFilePopup() {
+            openShareFilePopup(i) {
                 if (!this.closeAnyPopup()) return;
                 this.shareFilePopupOpened = true;
+
+                this.notBlurredFile = i;
+                this.notBlurredDir = -1;
             },
-            openShareDirPopup() {
+            openShareDirPopup(i) {
                 if (!this.closeAnyPopup()) return;
                 this.shareDirPopupOpened = true;
+
+                this.notBlurredFile = -1;
+                this.notBlurredDir = i;
             },
         }
     }
