@@ -985,6 +985,7 @@
                     }
 
                     this.informationPopupOpened = guid;
+                    this.notBlurredLine = guid;
                 }
             },
 
