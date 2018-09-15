@@ -21,21 +21,21 @@
                 </tr>
                 </tfoot>
                 <tbody>
-                <tr v-if="!transfers.length">
+                <tr v-if="!Object.keys(transfers).length">
                     <td colspan="5"><h3 style="text-align: center;font-weight: 300;">Aucun transferts</h3></td>
                 </tr>
 
-                <tr v-for="(transfer, i) in transfers" :key="i" class="blur-animated" :class="{blurred: notBlurredLine !== null && i !== notBlurredLine, unblurred: !(notBlurredLine !== null && i !== notBlurredLine)}">
-                    <td><i class="fal" :class="stateIcon(transfer.current_state)"></i></td>
+                <tr v-for="transfer in orderedTransfers" :key="transfer.guid" class="blur-animated" :class="{blurred: notBlurredLine !== null && transfer.guid !== notBlurredLine, unblurred: !(notBlurredLine !== null && transfer.guid !== notBlurredLine)}">
+                    <td style="text-align: center;"><i class="fal" :class="stateIcon(transfer.current_state)"></i></td>
                     <td><a href="http://google.fr">{{ transfer.file_name }}</a></td>
                     <td class="speed-indicator">{{ speedRound(transfer.current_speed) }}<span class="unit">{{ speedUnit(transfer.current_speed) }}</span><span v-if="transfer.current_speed_limit != 0" style="color: #df372d;"><br/><i class="fal fa-tachometer" style="margin-right: 4px;"></i>{{ speedRound(transfer.current_speed_limit) }}<span class="unit">{{ speedUnit(transfer.current_speed_limit) }}</span></span></td>
                     <td>
-                        <div class="progress-bar"><div class="bar-1" :style="{width: percentBar1(transfer) + '%'}" v-if="percentBar1(transfer) > 0"></div><div class="bar-2" :style="{width: percentBar2(transfer) + '%'}" v-if="percentBar2(transfer) > 0"></div><div class="bar-3" :style="{width: percentBar3(transfer) + '%'}" v-if="percentBar3(transfer) > 0"></div><div class="bar-4" :style="{width: percentBar4(transfer) + '%'}" v-if="percentBar4(transfer) > 0"></div><h5 class="progress-percentage">{{ transfer.downloaded / transfer.section_length * 100 }}%</h5></div>
+                        <div class="progress-bar" :class="['transfer-state-' + transfer.current_state]"><div class="bar-1" :style="{width: percentBar1(transfer) + '%'}" v-if="percentBar1(transfer) > 0"></div><div class="bar-2" :style="{width: percentBar2(transfer) + '%'}" v-if="percentBar2(transfer) > 0"></div><div class="bar-3" :style="{width: percentBar3(transfer) + '%'}" v-if="percentBar3(transfer) > 0"></div><div class="bar-4" :style="{width: percentBar4(transfer) + '%'}" v-if="percentBar4(transfer) > 0"></div><h5 class="progress-percentage">{{ (transfer.downloaded / transfer.section_length * 100).toFixed(1) }}%</h5></div>
                     </td>
 
                     <td>
-                        <i class="fal fa-tachometer speed-limit" :class="{'is-downloading': transfer.current_state === 0}" style="margin-right: 6px;" @click.self="speedPopupOpen(i)">
-                            <span :class="{'popup-opened-big': speedLimitEnabled && popupSetOpeningClass, 'popup-opened-mini': !speedLimitEnabled && popupSetOpeningClass}" class="speed-popup" v-if="speedPopupOpened === i" @mouseleave="speedPopupAutoclose" @mouseenter="clearAutoclose">
+                        <i class="fal fa-tachometer speed-limit" :class="{'is-downloading': transfer.current_state === 0}" style="margin-right: 6px;" @click.self="speedPopupOpen(transfer.guid)">
+                            <span :class="{'popup-opened-big': speedLimitEnabled && popupSetOpeningClass, 'popup-opened-mini': !speedLimitEnabled && popupSetOpeningClass}" class="speed-popup" v-if="speedPopupOpened === transfer.guid" @mouseleave="speedPopupAutoclose" @mouseenter="clearAutoclose">
                                 <i class="fal fa-times speed-close-button" :class="{'is-disabled': speedPopupRequest}" @click.self="closeAnyPopup"></i>
                                 <span class="speed-title" :class="{hidden: speedLimitEnabled}">Limiter le débit</span>
 
@@ -50,21 +50,21 @@
                                             </select>
                                         </span>
                                     </p>
-                                    <p class="control" style="color: white;"><a class="button is-primary" :class="{'is-loading': speedPopupRequest}" :disabled="speedPopupRequest" @click="speedPopupLimit(i)"><i class="fal fa-check"></i></a></p>
+                                    <p class="control" style="color: white;"><a class="button is-primary" :class="{'is-loading': speedPopupRequest}" :disabled="speedPopupRequest" @click="speedPopupLimit(transfer.guid)"><i class="fal fa-check"></i></a></p>
                                 </div>
 
                                 <div class="pretty p-switch p-fill"><input type="checkbox" v-model="speedLimitEnabled" :disabled="speedPopupRequest"/><div class="state p-info"><label></label></div></div>
                             </span>
                         </i>
 
-                        <i class="fal fa-skull kill-download" :class="{'is-downloading': transfer.current_state === 0}" style="margin-right: 6px;" @click.self="killPopupOpen(i)">
-                            <span class="kill-popup" v-if="killPopupOpened === i" @mouseleave="killPopupAutoclose" @mouseenter="clearAutoclose">
+                        <i class="fal fa-skull kill-download" :class="{'is-downloading': transfer.current_state === 0}" style="margin-right: 6px;" @click.self="killPopupOpen(transfer.guid)">
+                            <span class="kill-popup" v-if="killPopupOpened === transfer.guid" @mouseleave="killPopupAutoclose" @mouseenter="clearAutoclose">
                                 <i class="fal fa-times kill-close-button" :class="{'is-disabled': killPopupRequest}" @click.self="closeAnyPopup"></i>
-                                <span class="kill-title button is-danger" :class="{'is-loading': killPopupRequest}" :disabled="killPopupRequest" @click="killPopupKill(i)">Couper le téléchargement</span>
+                                <span class="kill-title button is-danger" :class="{'is-loading': killPopupRequest}" :disabled="killPopupRequest" @click="killPopupKill(transfer.guid)">Couper le téléchargement</span>
                             </span>
                         </i>
 
-                        <i class="fal fa-info-circle info-button" @click="infoPopupOpen(i)"></i>
+                        <i class="fal fa-info-circle info-button" @click="infoPopupOpen(transfer.guid)"></i>
                     </td>
                 </tr>
                 </tbody>
@@ -99,7 +99,7 @@
                     <td>Débit moyen</td>
                     <td v-if="informationPopupOpened !== null">
                         <template v-if="transfers[informationPopupOpened].end_date">{{speedRound((transfers[informationPopupOpened].section_length - transfers[informationPopupOpened].downloaded) / (transfers[informationPopupOpened].end_date - transfers[informationPopupOpened].start_date)) }}<span style="font-size: 12px;margin-left: 3px;">{{ speedUnit((transfers[informationPopupOpened].section_length - transfers[informationPopupOpened].downloaded) / (transfers[informationPopupOpened].end_date - transfers[informationPopupOpened].start_date)) }}</span></template>
-                        <template v-else>{{ speedRound((transfers[informationPopupOpened].section_length - transfers[informationPopupOpened].downloaded) / informationPopupDuration) }}<span style="font-size: 12px;margin-left: 3px;">{{ speedUnit((transfers[informationPopupOpened].section_length - transfers[informationPopupOpened].downloaded) / informationPopupDuration) }}</span></template>
+                        <template v-else>{{ speedRound(transfers[informationPopupOpened].downloaded / (transfers[informationPopupOpened].current_time - transfers[informationPopupOpened].start_date)) }}<span style="font-size: 12px;margin-left: 3px;">{{ speedUnit(transfers[informationPopupOpened].downloaded / (transfers[informationPopupOpened].current_time - transfers[informationPopupOpened].start_date)) }}</span></template>
                     </td>
                 </tr>
                 </tbody>
@@ -475,15 +475,30 @@
             display: inline-block;
         }
 
-        .bar-1, .bar-4 {
-            background-color: #dfdfdf;
+        &.transfer-state-0 {
+            .bar-1, .bar-4 { background-color: #dfdfdf; }
+            .bar-2 { background-color: #5595e0; }
+            .bar-3 { background-color: #92d4ff; }
         }
-        .bar-2 {
-            background-color: #5595e0;
+
+        &.transfer-state-1 {
+            .bar-1, .bar-4 { background-color: #dfdfdf; }
+            .bar-2 { background-color: #43c66d; }
+            .bar-3 { background-color: #c3e8cd; }
         }
-        .bar-3 {
-            background-color: #92d4ff;
+
+        &.transfer-state-2 {
+            .bar-1, .bar-4 { background-color: #dfdfdf; }
+            .bar-2 { background-color: #797979; }
+            .bar-3 { background-color: #aaaaaa; }
         }
+
+        &.transfer-state-3, &.transfer-state-4 {
+            .bar-1, .bar-4 { background-color: #dfdfdf; }
+            .bar-2 { background-color: #c67365; }
+            .bar-3 { background-color: #f3b9b3; }
+        }
+
 
         div:first-child {
             border-top-left-radius: $height;
@@ -513,6 +528,8 @@
 </style>
 
 <script>
+    import orderBy from 'lodash';
+
     export default {
         name: 'Monitoring',
         data () {
@@ -535,8 +552,115 @@
                 informationPopupDurationInterval: null,
                 informationPopupDuration: 0,
 
-                transfers: [
+                transfers: {},/*{
+                    "3005baba-d0dd-4435-9bc4-0136c955f934": {
+                        "guid": "3005baba-d0dd-4435-9bc4-0136c955f934",
+                        "current_speed": 14485783,
+                        "CurrentSpeedLimitDelay": 0,
+                        "current_speed_limit": 0,
+                        "ShouldInterrupt": true,
+                        "current_state": 4,
+                        "downloaded": 40898560,
+                        "ClientIP": "",
+                        "start_date": 1537037092,
+                        "end_date": 1537037094,
+                        "Url": "",
+                        "UrlExpiration": "0001-01-01T00:00:00Z",
+                        "UrlSpeedLimit": 0,
+                        "file_length": 3368163328,
+                        "file_name": "Win10_1511_2_French_x32.iso",
+                        "FilePath": "/Windows/Windows 10 - 1511/Win10_1511_2_French_x32.iso",
+                        "section_start": 0,
+                        "section_length": 3368163328,
+                        "BufferSize": 20480
+                    },
+                    "a4e95d2a-cc70-40b9-b822-82c60b983e61": {
+                        "guid": "a4e95d2a-cc70-40b9-b822-82c60b983e61",
+                        "current_speed": 20399389,
+                        "CurrentSpeedLimitDelay": 0,
+                        "current_speed_limit": 0,
+                        "ShouldInterrupt": false,
+                        "current_state": 2,
+                        "downloaded": 108625920,
+                        "ClientIP": "",
+                        "start_date": 1537037078,
+                        "end_date": 1537037082,
+                        "Url": "",
+                        "UrlExpiration": "0001-01-01T00:00:00Z",
+                        "UrlSpeedLimit": 0,
+                        "file_length": 3368163328,
+                        "file_name": "Win10_1511_2_French_x32.iso",
+                        "FilePath": "/Windows/Windows 10 - 1511/Win10_1511_2_French_x32.iso",
+                        "section_start": 0,
+                        "section_length": 3368163328,
+                        "BufferSize": 20480
+                    },
+                    "cdf5c328-2380-41ac-9ccd-d8d4eca36f4b": {
+                        "guid": "cdf5c328-2380-41ac-9ccd-d8d4eca36f4b",
+                        "current_speed": 18790733,
+                        "CurrentSpeedLimitDelay": 0,
+                        "current_speed_limit": 0,
+                        "ShouldInterrupt": false,
+                        "current_state": 0,
+                        "downloaded": 131031040,
+                        "ClientIP": "",
+                        "start_date": 1537037107,
+                        "end_date": -62135596800,
+                        "Url": "",
+                        "UrlExpiration": "0001-01-01T00:00:00Z",
+                        "UrlSpeedLimit": 0,
+                        "file_length": 3368163328,
+                        "file_name": "Win10_1511_2_French_x32.iso",
+                        "FilePath": "/Windows/Windows 10 - 1511/Win10_1511_2_French_x32.iso",
+                        "section_start": 0,
+                        "section_length": 3368163328,
+                        "BufferSize": 20480
+                    },
+                    "cdf5c328-2380-41ac-9ccd-d8d4eca36f4qsdqsdb": {
+                        "guid": "cdf5c328-2380-41ac-9ccd-d8d4eca36f4b",
+                        "current_speed": 18790733,
+                        "CurrentSpeedLimitDelay": 0,
+                        "current_speed_limit": 0,
+                        "ShouldInterrupt": false,
+                        "current_state": 1,
+                        "downloaded": 131031040,
+                        "ClientIP": "",
+                        "start_date": 1537037107,
+                        "end_date": -62135596800,
+                        "Url": "",
+                        "UrlExpiration": "0001-01-01T00:00:00Z",
+                        "UrlSpeedLimit": 0,
+                        "file_length": 3368163328,
+                        "file_name": "Win10_1511_2_French_x32.iso",
+                        "FilePath": "/Windows/Windows 10 - 1511/Win10_1511_2_French_x32.iso",
+                        "section_start": 0,
+                        "section_length": 3368163328,
+                        "BufferSize": 20480
+                    },
+                    "cdf5c328-2380-41ac-2321323d-d8d4eca36f4b": {
+                        "guid": "cdf5c328-2380-41ac-9ccd-d8d4eca36f4b",
+                        "current_speed": 18790733,
+                        "CurrentSpeedLimitDelay": 0,
+                        "current_speed_limit": 0,
+                        "ShouldInterrupt": false,
+                        "current_state": 3,
+                        "downloaded": 131031040,
+                        "ClientIP": "",
+                        "start_date": 1537037107,
+                        "end_date": -62135596800,
+                        "Url": "",
+                        "UrlExpiration": "0001-01-01T00:00:00Z",
+                        "UrlSpeedLimit": 0,
+                        "file_length": 3368163328,
+                        "file_name": "Win10_1511_2_French_x32.iso",
+                        "FilePath": "/Windows/Windows 10 - 1511/Win10_1511_2_French_x32.iso",
+                        "section_start": 0,
+                        "section_length": 3368163328,
+                        "BufferSize": 20480
+                    }
+                },
                     /*
+                    [
                     {
                         current_state: 0, // ok
                         file_name: 'Win10_1703_French_x64.iso', // ok
@@ -612,11 +736,15 @@
                         current_speed: 1234567890234567,
                         current_speed_limit: 0,
                     },
-                    */
-                ],
+                    ]*/
 
                 refreshTimeout: null,
                 cancelRefreshTimeout: false,
+            }
+        },
+        computed: {
+            orderedTransfers: function () {
+                return _.orderBy(this.transfers, 'start_date', 'desc');
             }
         },
         created() {
@@ -739,25 +867,37 @@
                 clearTimeout(this.popupAutocloseTimeout);
             },
 
-            killPopupOpen(i) {
+            killPopupOpen(guid) {
                 if (this.killPopupOpened !== null && this.killPopupRequest) return;
-                if (this.transfers[i].current_state !== 0) return;
+                if (this.transfers[guid].current_state !== 0) return;
 
                 if (this.closeAnyPopup()) {
-                    this.killPopupOpened = i;
-                    this.notBlurredLine = i;
+                    this.killPopupOpened = guid;
+                    this.notBlurredLine = guid;
                 }
             },
-            killPopupKill(i) {
+            killPopupKill(guid) {
                 if (this.killPopupOpened === null) return;
                 if (this.killPopupRequest) return;
 
                 this.killPopupRequest = true;
 
-                setTimeout(() => {
-                    this.killPopupRequest = false;
-                    this.closeAnyPopup();
-                }, 1000);
+                this.$axios.delete(this.$url + '/transfer/' + guid + '/')
+                    .then(() => {
+                        setTimeout(() => {
+                            this.killPopupRequest = false;
+                            this.closeAnyPopup();
+                        }, 750);
+                    })
+                    .catch((err) => {
+                        setTimeout(() => {
+                            this.killPopupRequest = false;
+                            this.closeAnyPopup();
+                        }, 750);
+
+                        // Todo: prévenir qu'il y a eu une erreur
+                        console.log(err);
+                    });
             },
             killPopupAutoclose() {
                 if (this.killPopupRequest) return;
@@ -769,26 +909,26 @@
                 }, 450);
             },
 
-            speedPopupOpen(i) {
+            speedPopupOpen(guid) {
                 if (this.speedPopupOpened !== null && this.speedPopupRequest) return;
-                if (this.transfers[i].current_state !== 0) return;
+                if (this.transfers[guid].current_state !== 0) return;
 
                 if (this.closeAnyPopup()) {
-                    this.speedLimitEnabled = this.transfers[i].current_speed_limit !== 0;
+                    this.speedLimitEnabled = this.transfers[guid].current_speed_limit !== 0;
                     if (this.speedLimitEnabled) {
-                        this.speedLimitUnit = this.formSpeedUnit(this.transfers[i].current_speed_limit);
-                        this.speedLimitInput = this.formSpeedRound(this.transfers[i].current_speed_limit);
+                        this.speedLimitUnit = this.formSpeedUnit(this.transfers[guid].current_speed_limit);
+                        this.speedLimitInput = this.formSpeedRound(this.transfers[guid].current_speed_limit);
                     } else {
                         this.speedLimitUnit = 2;
                         this.speedLimitInput = 1;
                     }
 
-                    this.speedPopupOpened = i;
+                    this.speedPopupOpened = guid;
                     setTimeout(() => { this.popupSetOpeningClass = true; }, 20);
-                    this.notBlurredLine = i;
+                    this.notBlurredLine = guid;
                 }
             },
-            speedPopupLimit(i) {
+            speedPopupLimit(guid) {
                 if (this.speedPopupOpened === null) return;
                 if (this.speedPopupRequest) return;
 
@@ -809,8 +949,8 @@
                     this.closeAnyPopup();
                 }, 450);
             },
-            speedLimitChange(i) {
-                this.transfers[i].speed_limit_enabled = true;
+            speedLimitChange(guid) {
+                this.transfers[guid].speed_limit_enabled = true;
             },
 
             getUnit(i) {
@@ -820,23 +960,20 @@
                 else return '';
             },
 
-            infoPopupOpen(i) {
+            infoPopupOpen(guid) {
                 if (this.informationPopupOpened !== null) return;
 
                 if (this.closeAnyPopup()) {
-                    this.informationPopupStartDate = this.transfers[i].start_date;
-                    this.informationPopupEndDate = this.transfers[i].end_date;
-                    this.informationPopupDuration = Math.floor(Date.now() / 1000) - this.transfers[i].start_date;
-                    this.informationPopupEndDate = this.transfers[i].end_date;
+                    this.informationPopupDuration = this.transfers[guid].current_time - this.transfers[guid].start_date;
 
                     if (this.informationPopupDurationInterval !== null) {
                         clearInterval(this.informationPopupDurationInterval);
                         this.informationPopupDurationInterval = null;
                     }
 
-                    if (this.transfers[i].current_state === 0) {
+                    if (this.transfers[guid].current_state === 0) {
                         this.informationPopupDurationInterval = setInterval(() => {
-                            if (this.transfers[i].current_state !== 0) {
+                            if (this.transfers[guid].current_state !== 0) {
                                 if (this.informationPopupDurationInterval !== null) {
                                     clearInterval(this.informationPopupDurationInterval);
                                     this.informationPopupDurationInterval = null;
@@ -847,7 +984,7 @@
                         }, 1000)
                     }
 
-                    this.informationPopupOpened = i;
+                    this.informationPopupOpened = guid;
                 }
             },
 
