@@ -171,7 +171,7 @@
 
         background-color: #f5f7fa;
         box-shadow: 0 8px 8px rgba(10, 10, 10, 0.1), 0 0 0 1px rgba(10, 10, 10, 0.1);
-        border-radius: 10px;
+        border-radius: 8px;
 
         overflow: hidden;
         opacity: 0;
