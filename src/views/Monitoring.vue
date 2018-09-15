@@ -98,7 +98,7 @@
                 <tr>
                     <td>Débit moyen</td>
                     <td v-if="informationPopupOpened !== null">
-                        <template v-if="transfers[informationPopupOpened].end_date">{{speedRound((transfers[informationPopupOpened].section_length - transfers[informationPopupOpened].downloaded) / (transfers[informationPopupOpened].end_date - transfers[informationPopupOpened].start_date)) }}<span style="font-size: 12px;margin-left: 3px;">{{ speedUnit((transfers[informationPopupOpened].section_length - transfers[informationPopupOpened].downloaded) / (transfers[informationPopupOpened].end_date - transfers[informationPopupOpened].start_date)) }}</span></template>
+                        <template v-if="transfers[informationPopupOpened].end_date">{{speedRound(transfers[informationPopupOpened].downloaded / (transfers[informationPopupOpened].end_date - transfers[informationPopupOpened].start_date)) }}<span style="font-size: 12px;margin-left: 3px;">{{ speedUnit(transfers[informationPopupOpened].downloaded / (transfers[informationPopupOpened].end_date - transfers[informationPopupOpened].start_date)) }}</span></template>
                         <template v-else>{{ speedRound(transfers[informationPopupOpened].downloaded / (transfers[informationPopupOpened].current_time - transfers[informationPopupOpened].start_date)) }}<span style="font-size: 12px;margin-left: 3px;">{{ speedUnit(transfers[informationPopupOpened].downloaded / (transfers[informationPopupOpened].current_time - transfers[informationPopupOpened].start_date)) }}</span></template>
                     </td>
                 </tr>
