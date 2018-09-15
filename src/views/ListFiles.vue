@@ -41,7 +41,6 @@
 <style lang="scss" scoped>
     table.table {
 
-
         width: 100%;
         background-color: #f5f7fa;
 
@@ -68,6 +67,8 @@
                     display: block;
                     text-decoration: none;
                     cursor: pointer;
+                    height: 37px;
+                    line-height: 36px;
                 }
 
                 &.share-button {
