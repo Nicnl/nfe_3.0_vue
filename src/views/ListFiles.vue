@@ -23,24 +23,116 @@
                 <tr v-for="(dir, i) in dirs" :key="'dir' + i">
                     <td><i class="fal fa-folder"></i></td>
                     <td colspan="2"><a href="http://google.fr">{{ dir.name }}</a></td>
-                    <td class="share-button"><i class="fal fa-share-square"></i></td>
+                    <td class="share-button" @click="openShareDirPopup"><i class="fal fa-share-square"></i></td>
                 </tr>
 
                 <tr v-for="(file, i) in files" :key="'file' + i">
                     <td><i class="fal" :class="icon(file.name)"></i></td>
                     <td><a href="http://google.fr">{{ file.name }}</a></td>
                     <td><span class="size">{{ sizeRound(file.size) }}</span><span class="extension">{{ sizeUnit(file.size) }}</span></td>
-                    <td class="share-button"><i class="fal fa-share-square"></i></td>
+                    <td class="share-button" @click="openShareFilePopup"><i class="fal fa-share-square"></i></td>
                 </tr>
                 </tbody>
             </table>
         </div>
+
+
+        <div class="full-background-shadow" :class="{visible: shareFilePopupOpened || shareDirPopupOpened}" @click="closeAnyPopup"></div>
+        <div class="share-file-popup" :class="{visible: shareFilePopupOpened}"></div>
+        <div class="share-dir-popup" :class="{visible: shareDirPopupOpened}"></div>
     </div>
 </template>
 
 <style lang="scss" scoped>
-    table.table {
+    .share-file-popup {
+        position: fixed;
 
+        width: 400px;
+        height: 0;
+
+        top: 85px;
+        left: 0;
+        right: 0;
+
+        margin-left: auto;
+        margin-right: auto;
+
+        z-index: 110;
+
+        background-color: #f5f7fa;
+        box-shadow: 0 8px 8px rgba(10, 10, 10, 0.1), 0 0 0 1px rgba(10, 10, 10, 0.1);
+        border-radius: 10px;
+
+        overflow: hidden;
+        opacity: 0;
+        pointer-events: none;
+
+        &.visible {
+            height: 183px;
+            pointer-events: all;
+            opacity: 1;
+        }
+
+        transition: opacity 200ms, height 350ms;
+    }
+
+    .share-dir-popup {
+        position: fixed;
+
+        width: 400px;
+        height: 0;
+
+        top: 85px;
+        left: 0;
+        right: 0;
+
+        margin-left: auto;
+        margin-right: auto;
+
+        z-index: 110;
+
+        background-color: #f5f7fa;
+        box-shadow: 0 8px 8px rgba(10, 10, 10, 0.1), 0 0 0 1px rgba(10, 10, 10, 0.1);
+        border-radius: 10px;
+
+        overflow: hidden;
+        opacity: 0;
+        pointer-events: none;
+
+        &.visible {
+            height: 183px;
+            pointer-events: all;
+            opacity: 1;
+        }
+
+        transition: opacity 200ms, height 350ms;
+    }
+
+    .full-background-shadow {
+        position: fixed;
+
+        top: 0;
+        left: 0;
+
+        width: 100%;
+        height: 100%;
+
+        z-index: 100;
+
+        background-color: rgba(0, 0, 0, 0.75);
+
+        pointer-events: none;
+        opacity: 0;
+
+        &.visible {
+            pointer-events: all;
+            opacity: 1;
+        }
+
+        transition: opacity 230ms;
+    }
+
+    table.table {
         width: 100%;
         background-color: #f5f7fa;
 
@@ -139,6 +231,8 @@
         name: 'ListFiles',
         data () {
             return {
+                shareFilePopupOpened: false,
+                shareDirPopupOpened: false,
                 dirs: [
                     {
                         name: 'Windows',
@@ -239,6 +333,20 @@
                     }
                 }
                 return 'fa-file';
+            },
+            closeAnyPopup() {
+                this.shareFilePopupOpened = false;
+                this.shareDirPopupOpened = false;
+
+                return true;
+            },
+            openShareFilePopup() {
+                if (!this.closeAnyPopup()) return;
+                this.shareFilePopupOpened = true;
+            },
+            openShareDirPopup() {
+                if (!this.closeAnyPopup()) return;
+                this.shareDirPopupOpened = true;
             },
         }
     }
