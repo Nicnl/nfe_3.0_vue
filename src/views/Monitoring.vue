@@ -45,15 +45,15 @@
                                         <span class="select">
                                             <select v-model="speedLimitUnit" :disabled="speedPopupRequest">
                                                 <option value="0">o/s</option>
-                                                <option value="1">Ko/s</option>
-                                                <option value="2">Mo/s</option>
+                                                <option value="1000">Ko/s</option>
+                                                <option value="1000000">Mo/s</option>
                                             </select>
                                         </span>
                                     </p>
                                     <p class="control" style="color: white;"><a class="button is-primary" :class="{'is-loading': speedPopupRequest}" :disabled="speedPopupRequest" @click="speedPopupLimit(transfer.guid)"><i class="fal fa-check"></i></a></p>
                                 </div>
 
-                                <div class="pretty p-switch p-fill"><input type="checkbox" v-model="speedLimitEnabled" :disabled="speedPopupRequest"/><div class="state p-info"><label></label></div></div>
+                                <div class="pretty p-switch p-fill"><input type="checkbox" v-model="speedLimitEnabled" :disabled="speedPopupRequest" @change="speedCheckboxChanged(transfer.guid)"/><div class="state p-info"><label></label></div></div>
                             </span>
                         </i>
 
@@ -467,7 +467,7 @@
         height: $height;
         width: 100%;
         display: inline-block;
-        //transform: translateY(-3px);
+        transform: translateY(3px);
 
 
         .bar-1, .bar-2, .bar-3, .bar-4 {
@@ -513,7 +513,7 @@
         .progress-percentage {
             position: absolute;
 
-            top: -5px;
+            top: -3px;
             left: 0;
             width: 100%;
             text-align: center;
@@ -552,7 +552,8 @@
                 informationPopupDurationInterval: null,
                 informationPopupDuration: 0,
 
-                transfers: {},/*{
+                transfers: {
+                    /*
                     "3005baba-d0dd-4435-9bc4-0136c955f934": {
                         "guid": "3005baba-d0dd-4435-9bc4-0136c955f934",
                         "current_speed": 14485783,
@@ -617,7 +618,7 @@
                         "BufferSize": 20480
                     },
                     "cdf5c328-2380-41ac-9ccd-d8d4eca36f4qsdqsdb": {
-                        "guid": "cdf5c328-2380-41ac-9ccd-d8d4eca36f4b",
+                        "guid": "cdf5c328-2380-41ac-9ccd-d8d4eca36f4qsdqsdb",
                         "current_speed": 18790733,
                         "CurrentSpeedLimitDelay": 0,
                         "current_speed_limit": 0,
@@ -638,7 +639,7 @@
                         "BufferSize": 20480
                     },
                     "cdf5c328-2380-41ac-2321323d-d8d4eca36f4b": {
-                        "guid": "cdf5c328-2380-41ac-9ccd-d8d4eca36f4b",
+                        "guid": "cdf5c328-2380-41ac-2321323d-d8d4eca36f4b",
                         "current_speed": 18790733,
                         "CurrentSpeedLimitDelay": 0,
                         "current_speed_limit": 0,
@@ -737,6 +738,7 @@
                         current_speed_limit: 0,
                     },
                     ]*/
+                },
 
                 refreshTimeout: null,
                 cancelRefreshTimeout: false,
@@ -801,9 +803,9 @@
                 let len = (speed + '').length;
 
                 if (len > 12) return 'To/s';
-                else if (len > 9) return 'Go/s';
-                else if (len > 6) return 'Mo/s';
-                else if (len > 3) return 'Ko/s';
+                else if (len >= 9) return 'Go/s';
+                else if (len >= 6) return 'Mo/s';
+                else if (len >= 3) return 'Ko/s';
                 else return 'o/s';
             },
             speedRound(speed) {
@@ -815,22 +817,22 @@
                 else if (len > 12) return (speed / 10 ** 12).toFixed(2);
                 else if (len > 11) return (speed / 10 ** 9).toFixed(0);
                 else if (len > 10) return (speed / 10 ** 9).toFixed(1);
-                else if (len > 9) return (speed / 10 ** 9).toFixed(2);
+                else if (len >= 9) return (speed / 10 ** 9).toFixed(2);
                 else if (len > 8) return (speed / 10 ** 6).toFixed(0);
                 else if (len > 7) return (speed / 10 ** 6).toFixed(1);
-                else if (len > 6) return (speed / 10 ** 6).toFixed(2);
+                else if (len >= 6) return (speed / 10 ** 6).toFixed(2);
                 else if (len > 5) return (speed / 10 ** 3).toFixed(0);
                 else if (len > 4) return (speed / 10 ** 3).toFixed(1);
-                else if (len > 3) return (speed / 10 ** 3).toFixed(2);
+                else if (len >= 3) return (speed / 10 ** 3).toFixed(2);
                 else return speed;
             },
             formSpeedUnit(speed) {
                 speed = Math.floor(speed);
                 let len = (speed + '').length;
 
-                if (len > 6) return 2;
-                else if (len > 3) return 1;
-                else return 0;
+                if (len > 6) return 1000000;
+                else if (len > 3) return 1000;
+                else return 1;
             },
             formSpeedRound(speed) {
                 speed = Math.floor(speed);
@@ -887,13 +889,13 @@
                         setTimeout(() => {
                             this.killPopupRequest = false;
                             this.closeAnyPopup();
-                        }, 750);
+                        }, 600);
                     })
                     .catch((err) => {
                         setTimeout(() => {
                             this.killPopupRequest = false;
                             this.closeAnyPopup();
-                        }, 750);
+                        }, 600);
 
                         // Todo: prévenir qu'il y a eu une erreur
                         console.log(err);
@@ -919,7 +921,7 @@
                         this.speedLimitUnit = this.formSpeedUnit(this.transfers[guid].current_speed_limit);
                         this.speedLimitInput = this.formSpeedRound(this.transfers[guid].current_speed_limit);
                     } else {
-                        this.speedLimitUnit = 2;
+                        this.speedLimitUnit = 1000000;
                         this.speedLimitInput = 1;
                     }
 
@@ -928,16 +930,35 @@
                     this.notBlurredLine = guid;
                 }
             },
+            sendSpeedLimit(guid, callback, speed_limit, delay) {
+                this.speedPopupRequest = true;
+
+                this.$axios.patch(this.$url + '/transfer/' + guid + '/', {speed_limit: speed_limit})
+                    .then((response) => {
+                        setTimeout(() => {
+                            this.speedPopupRequest = false;
+                            if (callback !== null) callback();
+                        }, delay)
+                    })
+                    .catch((err) => {
+                        console.log(err); // Todo: afficher l'erreur
+                        setTimeout(() => {
+                            this.speedPopupRequest = false;
+                            if (callback !== null) callback();
+                        }, delay)
+                    })
+            },
             speedPopupLimit(guid) {
                 if (this.speedPopupOpened === null) return;
                 if (this.speedPopupRequest) return;
 
-                this.speedPopupRequest = true;
 
-                setTimeout(() => {
-                    this.speedPopupRequest = false;
-                    this.closeAnyPopup();
-                }, 1000);
+                this.sendSpeedLimit(guid, this.closeAnyPopup, this.speedLimitInput * this.speedLimitUnit, 600);
+            },
+            speedCheckboxChanged(guid) {
+                if (!this.speedLimitEnabled) {
+                    this.sendSpeedLimit(guid, null, 0, 100);
+                }
             },
             speedPopupAutoclose() {
                 return;
@@ -949,17 +970,6 @@
                     this.closeAnyPopup();
                 }, 450);
             },
-            speedLimitChange(guid) {
-                this.transfers[guid].speed_limit_enabled = true;
-            },
-
-            getUnit(i) {
-                if (i == 0) return 'o/s';
-                else if (i == 1) return 'Ko/s';
-                else if (i == 2) return 'Mo/s';
-                else return '';
-            },
-
             infoPopupOpen(guid) {
                 if (this.informationPopupOpened !== null) return;
 
