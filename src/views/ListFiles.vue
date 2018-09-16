@@ -49,30 +49,30 @@
         <div class="share-popup" :class="{visible: shareFilePopupOpened || shareDirPopupOpened}">
             <div class="share-title"><h4>Partager un {{ shareFilePopupOpened && !shareDirPopupOpened ? 'fichier' : '' }}{{ !shareFilePopupOpened && shareDirPopupOpened ? 'dossier' : '' }}</h4></div>
 
-            <div class="pretty p-switch p-fill speed-limit-checkbox"><input type="checkbox" v-model="speedLimitEnabled"/><div class="state p-info"><label></label></div></div>
+            <div class="pretty p-switch p-fill speed-limit-checkbox"><input type="checkbox" v-model="speedLimitEnabled" @change="linkParametersChanged"/><div class="state p-info"><label></label></div></div>
             <h4 class="limit-speed-title">Limiter le débit</h4>
 
             <div class="field has-addons has-addons-centered speed-limit-form" :class="{hidden: !speedLimitEnabled}">
-                <p class="control"><input class="input" type="text" placeholder="Débit" v-model="speedLimitInput"></p>
+                <p class="control"><input class="input" type="text" placeholder="Débit" v-model="speedLimitInput" @keyup="linkParametersChanged"></p>
                 <p class="control">
-                    <span class="select">
+                    <span class="select" @change="linkParametersChanged">
                         <select v-model="speedLimitUnit">
                             <option value="0">o/s</option>
-                            <option value="1">Ko/s</option>
-                            <option value="2">Mo/s</option>
+                            <option value="1000">Ko/s</option>
+                            <option value="1000000">Mo/s</option>
                         </select>
                     </span>
                 </p>
             </div>
 
-            <div class="pretty p-switch p-fill time-limit-checkbox"><input type="checkbox" v-model="timeLimitEnabled"/><div class="state p-info"><label></label></div></div>
+            <div class="pretty p-switch p-fill time-limit-checkbox"><input type="checkbox" v-model="timeLimitEnabled" @change="linkParametersChanged"/><div class="state p-info"><label></label></div></div>
             <h4 class="limit-time-title">Limiter la durée</h4>
 
             <div class="field has-addons has-addons-centered time-limit-form" :class="{hidden: !timeLimitEnabled}">
-                <p class="control"><input class="input" type="text" placeholder="Débit" v-model="timeLimitInput"></p>
+                <p class="control"><input class="input" type="text" placeholder="Débit" v-model="timeLimitInput" @keyup="linkParametersChanged"></p>
                 <p class="control">
                     <span class="select">
-                        <select v-model="timeLimitUnit">
+                        <select v-model="timeLimitUnit" @change="linkParametersChanged">
                             <option :value="1">secondes</option>
                             <option :value="1 * 60">minutes</option>
                             <option :value="1 * 60 * 60">heures</option>
@@ -392,6 +392,8 @@
         ]
     };
 
+    import debounce from 'lodash';
+
     export default {
         name: 'ListFiles',
         data () {
@@ -399,19 +401,21 @@
                 notBlurredFile: null,
                 notBlurredDir: null,
 
+                shareBasePath: null,
                 shareFilePopupOpened: false,
                 shareDirPopupOpened: false,
 
-                generatingLinkRequest: false,
 
                 speedLimitInput: 1,
                 speedLimitEnabled: false,
-                speedLimitUnit: 0,
+                speedLimitUnit: 1000000,
 
                 timeLimitInput: 15,
                 timeLimitEnabled: true,
                 timeLimitUnit: 60,
 
+                shouldRegenLink: false,
+                generatingLinkRequest: false,
                 generatedLink: 'https://download.nicnl.com/e946c22fb68d859aef10d2bd0137baaddc231248f1a8f8517ed85db3d9f213caaa8c2eef7d7b1466fb70dcc0b71d00937b59306051b1d1ba17e4ea65345f34f5a542fa6174bc5f55e9ce90540bf284d581e08523eb154b0540902eb9c1a056fe-a5d34ef6dc/appIcon.png',
 
                 path: null,
@@ -555,18 +559,79 @@
             },
             openShareFilePopup(i) {
                 if (!this.closeAnyPopup()) return;
-                this.shareFilePopupOpened = true;
+
+                this.speedLimitUnit = 1000000;
+                this.speedLimitInput = 1;
+                this.speedLimitEnabled = false;
+
+                this.timeLimitUnit = 60;
+                this.timeLimitInput = 15;
+                this.timeLimitEnabled = true;
 
                 this.notBlurredFile = i;
                 this.notBlurredDir = -1;
+                this.shareBasePath = this.files[i].path;
+
+                this.generatedLink = '';
+
+                this.shareFilePopupOpened = true;
+                this.linkParametersChanged();
             },
             openShareDirPopup(i) {
                 if (!this.closeAnyPopup()) return;
-                this.shareDirPopupOpened = true;
+
+                this.speedLimitUnit = 1000000;
+                this.speedLimitInput = 1;
+                this.speedLimitEnabled = false;
+
+                this.timeLimitUnit = 60;
+                this.timeLimitInput = 15;
+                this.timeLimitEnabled = true;
 
                 this.notBlurredFile = -1;
                 this.notBlurredDir = i;
+                this.shareBasePath = this.dirs[i].path;
+
+                this.generatedLink = '';
+
+                this.shareDirPopupOpened = true;
+                this.linkParametersChanged();
             },
+            linkParametersChanged: _.debounce(function() {
+                if (!this.shareFilePopupOpened && this.shareDirPopupOpened) return;
+
+                if (this.generatingLinkRequest) {
+                    this.shouldRegenLink = true;
+                    return;
+                }
+
+                this.generatingLinkRequest = true;
+                this.generatedLink = '';
+                this.$axios.post(this.$url + '/gen/', {
+                    path: this.shareBasePath,
+                    speed: this.speedLimitEnabled ? this.speedLimitInput * this.speedLimitUnit : 0,
+                    duration: this.timeLimitEnabled ? this.timeLimitInput * this.timeLimitUnit : 0,
+                })
+                    .then((response) => {
+
+                        if (this.shouldRegenLink) {
+                            this.linkParametersChanged();
+                        } else {
+                            this.generatedLink = this.$downurl + '/' + response.data.path;
+                            this.generatingLinkRequest = false;
+                        }
+                    })
+                    .catch((err) => {
+                        console.log(err);
+                        // Todo: afficher l'erreur
+
+                        if (this.shouldRegenLink) {
+                            this.linkParametersChanged();
+                        } else {
+                            this.generatingLinkRequest = false;
+                        }
+                    })
+            }, 165),
         }
     }
 </script>

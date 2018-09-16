@@ -16,6 +16,7 @@
 
             <div class="navbar-end">
 
+                <!--
                 <div class="navbar-item has-dropdown is-hoverable">
                     <a class="navbar-link">Options</a>
                     <div class="navbar-dropdown dropdown-right is-boxed">
@@ -27,6 +28,7 @@
                         </a>
                     </div>
                 </div>
+                -->
 
                 <div class="navbar-item has-dropdown is-hoverable">
                     <a class="navbar-link">Administration</a>
@@ -53,6 +55,7 @@
             margin-right: 6px;
         }
 
+        /*
         &:hover {
             &.is-enabled {
                 background-color: #eaf5ea;
@@ -63,6 +66,7 @@
         &.is-enabled {
             background-color: #effaef;
         }
+        */
     }
 
     .navbar-dropdown {
@@ -78,18 +82,18 @@
         name: 'NavBar',
         data() {
             return {
-                listEnabled: false,
-                recursiveEnabled: true,
+                //listEnabled: false,
+                //recursiveEnabled: true,
                 burgerOpened: false,
             }
         },
         methods: {
-            toggleList() {
+            /*toggleList() {
                 this.listEnabled = !this.listEnabled;
             },
             toggleRecursive() {
                 this.recursiveEnabled = !this.recursiveEnabled;
-            },
+            },*/
             toggleBurger() {
                 this.burgerOpened = !this.burgerOpened;
             },
