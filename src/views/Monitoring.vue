@@ -44,7 +44,7 @@
                                     <p class="control">
                                         <span class="select">
                                             <select v-model="speedLimitUnit" :disabled="speedPopupRequest">
-                                                <option value="0">o/s</option>
+                                                <option value="1">o/s</option>
                                                 <option value="1000">Ko/s</option>
                                                 <option value="1000000">Mo/s</option>
                                             </select>
