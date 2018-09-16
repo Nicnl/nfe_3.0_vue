@@ -746,7 +746,7 @@
         },
         computed: {
             orderedTransfers: function () {
-                return _.orderBy(this.transfers, 'start_date', 'desc');
+                return _.orderBy(this.transfers, ['current_state', 'section_start', 'start_date'], ['asc', 'asc', 'desc']);
             }
         },
         created() {
