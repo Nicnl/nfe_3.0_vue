@@ -598,7 +598,7 @@
                 this.linkParametersChanged();
             },
             linkParametersChanged: _.debounce(function() {
-                if (!this.shareFilePopupOpened && this.shareDirPopupOpened) return;
+                //if (!this.shareFilePopupOpened && this.shareDirPopupOpened) return;
 
                 if (this.generatingLinkRequest) {
                     this.shouldRegenLink = true;
@@ -617,7 +617,11 @@
                         if (this.shouldRegenLink) {
                             this.linkParametersChanged();
                         } else {
-                            this.generatedLink = this.$downurl + '/' + response.data.path;
+                            if (this.shareFilePopupOpened)
+                                this.generatedLink = this.$downurl + '/' + response.data.path;
+                            else if (this.shareDirPopupOpened)
+                                this.generatedLink = /*this.$downurl*/ 'http://localhost:8080' + '/#/guest/explore/' + response.data.path;
+
                             this.generatingLinkRequest = false;
                         }
                     })
