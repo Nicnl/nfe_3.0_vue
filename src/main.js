@@ -21,10 +21,10 @@ Object.defineProperties(Vue.prototype, {
         get: () => eventBus
     },
     $url: {
-        get: () => 'http://vmshare.nicnl.com:9001'
+        get: () => window.appConfig.urlApi
     },
     $downurl: {
-        get: () => 'http://vmshare.nicnl.com:9000'
+        get: () => window.appConfig.urlDown
     }
 });
 

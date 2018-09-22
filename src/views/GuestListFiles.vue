@@ -337,7 +337,7 @@
             /* java */ 'class', 'java',
             /* go */ 'go', 'mod',
             /* python */ 'py', 'pyc',
-            /* data */ 'xml', 'json,', 'yml', 'yaml', 'ini', 'env', 'toml', 'cson', 'bson', 'cfg',
+            /* data */ 'xml', 'json,', 'yml', 'yaml', 'ini', 'env', 'toml', 'lock', 'cson', 'bson', 'cfg',
             /* script */ 'sh', 'bash',
             /* other */ 'gitignore',
             /* hell */ 'vb', 'vbs', 'bat', 'vbx',
@@ -441,7 +441,7 @@
             fetchList(path) {
                 this.lastError = null;
 
-                this.$axios.get(this.$url + '/guest/' + this.$route.params.mooltipass + '/ls/' + path)
+                this.$axios.get(this.$url + '/api/guest/' + this.$route.params.mooltipass + '/ls/' + path)
                     .then((response) => {
                         this.path = response.data.path;
                         this.parent_path = response.data.parent_path;

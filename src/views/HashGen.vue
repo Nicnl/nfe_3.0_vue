@@ -8,9 +8,10 @@
                         <li v-for="(message, i) in is_configured_messages" :key="i">{{ message }}</li>
                     </ul>
                     <br/>
-                    <p style="font-size: 15px;font-weight: 300;">
-                        <router-link :to="{name: 'HashGen'}">Lien vers page de génération des hashs.</router-link><br/>
-                        <span style="font-size: 13px;">(Pour variables d'environnement PW_HASH_ADMIN et PW_HASH_USER</span>
+                    Note :<br/>
+                    <p style="font-size: 13px;font-weight: 300;">
+                        Si vous changez la variable d'environnement JWT_SECRET,<br/>
+                        vous devrez regénérer PW_HASH_USER et PW_HASH_ADMIN.
                     </p>
                 </div>
 
@@ -19,7 +20,14 @@
                     {{ error_message }}
                 </div>
 
-                <div v-if="is_configured" class="nice_box padded">
+                <div class="notification animated is-success" style="text-align: center;" v-if="gen_hash">
+                    <button class="delete" @click="gen_hash = null"></button>
+                    Hash : {{ gen_hash }}
+                </div>
+
+                <div class="nice_box padded">
+                    <h1 style="font-size: 21px;font-weight:400;">Génération de hash</h1>
+                    <br/>
                     <form v-on:submit.prevent>
                         <div class="field">
                             <label class="label" style="font-weight: normal;">Nom d'utilisateur</label>
@@ -35,7 +43,7 @@
                             </div>
                         </div>
 
-                        <button class="button is-pulled-right is-dark" :class="{'is-loading': isPerformingRequest}" @click="startAuth">Connexion</button>
+                        <button class="button is-pulled-right is-dark" :class="{'is-loading': isPerformingRequest}" @click="startAuth">Générer Hash</button>
                         <div class="is-clearfix"></div>
                     </form>
                 </div>
@@ -93,7 +101,7 @@
 
     .notification.animated {
         animation-name: open_animation;
-        animation-duration: 1000ms;
+        animation-duration: 500ms;
     }
 
     .notification.animated_auto {
@@ -104,13 +112,14 @@
 
 <script>
     export default {
-        name: 'Login',
+        name: 'HashGen',
         data() {
             return {
                 user: '',
                 pass: '',
                 isPerformingRequest: false,
                 error_message: null,
+                gen_hash: '',
 
                 is_configured: true,
                 is_configured_messages: [],
@@ -132,36 +141,28 @@
                 this.isPerformingRequest = true;
 
                 this.error_message = null;
+                this.gen_hash = null;
 
-                this.$axios.post(this.$url + '/api/auth', {
+                this.$axios.post(this.$url + '/api/hash', {
                     user: this.user,
                     pass: this.pass,
                 })
                     .then((response) => {
                         setTimeout(() => {
                             this.error_message = null;
-
-                            this.$session.start();
-
-                            this.$session.set('jwt', response.data.token);
-                            this.$session.set('user_admin', response.data.user_admin);
-                            this.$session.set('max_bandwidth', response.data.max_bandwidth);
-                            this.$session.set('max_duration', response.data.max_duration);
-
-                            this.$axios.defaults.headers.common['Authorization'] = 'Bearer ' + this.$session.get('jwt');
-                            this.$eventbus.$emit('session_has_changed');
-                            this.$router.push({name: 'Home'});
+                            this.gen_hash = response.data.hash;
+                            this.isPerformingRequest = false;
                         }, 500);
                     })
                     .catch((error) => {
                         setTimeout(() => {
-                            console.log('Error when authenticating', error, error.response);
+                            console.log('Error when generating hash', error, error.response);
                             this.isPerformingRequest = false;
 
                             if (error.response.status === 400)
                                 this.error_message = "Veuillez entrer des identifiants";
-                            else if (error.response.status === 401)
-                                this.error_message =  'Identifiants incorrects.';
+                            else if (error.response.status === 500)
+                                this.error_message =  'Erreur serveur.';
                             else
                                 this.error_message = error;
                         }, 500);

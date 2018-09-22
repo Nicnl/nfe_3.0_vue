@@ -784,7 +784,7 @@
                 }, 500);
             },
             fetchTransfers(doneCallback) {
-                this.$axios.get(this.$url + '/transfers')
+                this.$axios.get(this.$url + '/api/transfers')
                     .then((response) => {
                         this.transfers = response.data;
                         doneCallback();
@@ -798,7 +798,7 @@
                 if (this.isClearingTransfers) return;
 
                 this.isClearingTransfers = true;
-                this.$axios.delete(this.$url + '/transfers')
+                this.$axios.delete(this.$url + '/api/transfers')
                     .then((response) => {
                         setTimeout(() => {
                             this.transfers = response.data;
@@ -918,7 +918,7 @@
 
                 this.killPopupRequest = true;
 
-                this.$axios.delete(this.$url + '/transfer/' + guid + '/')
+                this.$axios.delete(this.$url + '/api/transfer/' + guid + '/')
                     .then(() => {
                         setTimeout(() => {
                             this.killPopupRequest = false;
@@ -967,7 +967,7 @@
             sendSpeedLimit(guid, callback, speed_limit, delay) {
                 this.speedPopupRequest = true;
 
-                this.$axios.patch(this.$url + '/transfer/' + guid + '/', {speed_limit: speed_limit})
+                this.$axios.patch(this.$url + '/api/transfer/' + guid + '/', {speed_limit: speed_limit})
                     .then((response) => {
                         setTimeout(() => {
                             this.speedPopupRequest = false;

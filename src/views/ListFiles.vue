@@ -507,7 +507,7 @@
                 console.log("fetching list for:" + path);
 
                 this.lastError = null;
-                this.$axios.get(this.$url + '/ls/' + path)
+                this.$axios.get(this.$url + '/api/ls/' + path)
                     .then((response) => {
                         this.path = response.data.path;
                         this.parent_path = response.data.parent_path;
@@ -702,7 +702,7 @@
 
                 this.generatingLinkRequest = true;
                 this.generatedLink = '';
-                this.$axios.post(this.$url + '/gen/', {
+                this.$axios.post(this.$url + '/api/gen/', {
                     path: this.shareBasePath,
                     speed: Math.floor(this.speedLimitEnabled ? this.speedLimitInput * this.speedLimitUnit : 0),
                     duration: Math.floor(this.timeLimitEnabled ? this.timeLimitInput * this.timeLimitUnit : 0),
@@ -715,7 +715,7 @@
                             if (this.shareFilePopupOpened)
                                 this.generatedLink = this.$downurl + '/' + response.data.path;
                             else if (this.shareDirPopupOpened)
-                                this.generatedLink = /*this.$downurl*/ 'http://localhost:8080' + '/#/guest/explore/' + response.data.path;
+                                this.generatedLink = this.$downurl+ '/#/guest/explore/' + response.data.path; // Todo: pas bon, faut revoir
 
                             this.generatingLinkRequest = false;
                         }

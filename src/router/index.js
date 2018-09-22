@@ -5,6 +5,7 @@ import Home from '@/views/Home'
 import ListFiles from '@/views/ListFiles'
 import GuestListFiles from '@/views/GuestListFiles'
 import Login from '@/views/Login'
+import HashGen from '@/views/HashGen'
 import Monitoring from '@/views/Monitoring'
 import NavBar from '@/components/Navigation/NavBar'
 
@@ -68,11 +69,19 @@ const router = new Router({
                 navbar: NavBar
             },
         },
+        {
+            path: '/hash_gen',
+            name: 'HashGen',
+            components: {
+                default: HashGen,
+                navbar: NavBar
+            },
+        },
     ]
 });
 
 router.beforeEach((to, from, next) => {
-    if (to.name == 'GuestListFiles' || to.name == 'GuestListFilesM') {
+    if (to.name == 'GuestListFiles' || to.name == 'GuestListFilesM' || to.name == 'HashGen') {
         next();
         return;
     }
