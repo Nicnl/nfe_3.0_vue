@@ -14,12 +14,10 @@
                     <th width="30px"></th>
                     <th></th>
                     <th width="80px"></th>
-                    <th width="20px"></th>
                 </tr>
                 </thead>
                 <tfoot>
                 <tr>
-                    <th></th>
                     <th></th>
                     <th></th>
                     <th></th>
@@ -29,72 +27,24 @@
 
                 <tr class="blur-animated" :class="{blurred: notBlurredDir !== null, unblurred: notBlurredDir === null}" v-if="parent_path !== null">
                     <td><i class="fal fa-folders"></i></td>
-                    <td colspan="3">
-                        <router-link :to="{ name: 'ListFilesM', params: { path: parent_path } }" v-if="parent_path !== ''">..</router-link>
-                        <router-link :to="{ name: 'ListFiles' }" v-if="parent_path === ''">..</router-link>
+                    <td colspan="2">
+                        <router-link :to="{ name: 'GuestListFilesM', params: { mooltipass: $route.params.mooltipass, path: parent_path } }" v-if="parent_path !== ''">..</router-link>
+                        <router-link :to="{ name: 'GuestListFiles', params: {mooltipass: $route.params.mooltipass} }" v-if="parent_path === ''">..</router-link>
                     </td>
                 </tr>
 
                 <tr v-for="(dir, i) in dirs" :key="'dir' + i" class="blur-animated" :class="{blurred: notBlurredDir !== null && i !== notBlurredDir, unblurred: !(notBlurredDir !== null && i !== notBlurredDir)}">
                     <td><i class="fal fa-folder"></i></td>
-                    <td colspan="2"><router-link :to="{ name: 'ListFilesM', params: { path: dir.path } }">{{ dir.name }}</router-link></td>
-                    <td class="share-button" @click="openShareDirPopup(i)"><i class="fal fa-share-square"></i></td>
+                    <td colspan="2"><router-link :to="{ name: 'GuestListFilesM', params: { mooltipass: $route.params.mooltipass, path: dir.path } }">{{ dir.name }}</router-link></td>
                 </tr>
 
                 <tr v-for="(file, i) in files" :key="'file' + i" class="blur-animated" :class="{blurred: notBlurredFile !== null && i !== notBlurredFile, unblurred: !(notBlurredFile !== null && i !== notBlurredFile)}">
                     <td><i class="fal" :class="icon(file.name)"></i></td>
-                    <td><a :href="$downurl + '/' + file.path">{{ file.name }}</a></td>
+                    <td><a :href="$downurl + '/' + $route.params.mooltipass + '/osef/guest/' + file.path">{{ file.name }}</a></td>
                     <td><span class="size">{{ sizeRound(file.size) }}</span><span class="extension">{{ sizeUnit(file.size) }}</span></td>
-                    <td class="share-button" @click="openShareFilePopup(i)"><i class="fal fa-share-square"></i></td>
                 </tr>
                 </tbody>
             </table>
-        </div>
-
-
-        <div class="full-background-shadow" :class="{visible: shareFilePopupOpened || shareDirPopupOpened}" @click="closeAnyPopup"></div>
-        <div class="share-popup" :class="{visible: shareFilePopupOpened || shareDirPopupOpened}">
-            <div class="share-title"><h4>Partager un {{ shareFilePopupOpened && !shareDirPopupOpened ? 'fichier' : '' }}{{ !shareFilePopupOpened && shareDirPopupOpened ? 'dossier' : '' }}</h4></div>
-
-            <div class="pretty p-switch p-fill speed-limit-checkbox"><input type="checkbox" v-model="speedLimitEnabled" @change="linkParametersChanged"/><div class="state p-info"><label></label></div></div>
-            <h4 class="limit-speed-title">Limiter le débit</h4>
-
-            <div class="field has-addons has-addons-centered speed-limit-form" :class="{hidden: !speedLimitEnabled}">
-                <p class="control"><input class="input" type="text" placeholder="Débit" v-model="speedLimitInput" @keyup="linkParametersChanged"></p>
-                <p class="control">
-                    <span class="select" @change="linkParametersChanged">
-                        <select v-model="speedLimitUnit">
-                            <option value="1">o/s</option>
-                            <option value="1000">Ko/s</option>
-                            <option value="1000000">Mo/s</option>
-                        </select>
-                    </span>
-                </p>
-            </div>
-
-            <div class="pretty p-switch p-fill time-limit-checkbox"><input type="checkbox" v-model="timeLimitEnabled" @change="linkParametersChanged"/><div class="state p-info"><label></label></div></div>
-            <h4 class="limit-time-title">Limiter la durée</h4>
-
-            <div class="field has-addons has-addons-centered time-limit-form" :class="{hidden: !timeLimitEnabled}">
-                <p class="control"><input class="input" type="text" placeholder="Débit" v-model="timeLimitInput" @keyup="linkParametersChanged"></p>
-                <p class="control">
-                    <span class="select">
-                        <select v-model="timeLimitUnit" @change="linkParametersChanged">
-                            <option :value="1">secondes</option>
-                            <option :value="1 * 60">minutes</option>
-                            <option :value="1 * 60 * 60">heures</option>
-                            <option :value="1 * 60 * 60 * 24">jours</option>
-                            <option :value="1 * 60 * 60 * 24 * 7">semaines</option>
-                        </select>
-                    </span>
-                </p>
-            </div>
-
-            <div class="field link-text-area">
-                <div class="control is-small" :class="{'is-loading': generatingLinkRequest}">
-                    <textarea class="textarea is-small" type="text" placeholder="" v-model="generatedLink" readonly></textarea>
-                </div>
-            </div>
         </div>
     </div>
 </template>
@@ -410,19 +360,6 @@
                 notBlurredFile: null,
                 notBlurredDir: null,
 
-                shareBasePath: null,
-                shareFilePopupOpened: false,
-                shareDirPopupOpened: false,
-
-
-                speedLimitInput: 1,
-                speedLimitEnabled: false,
-                speedLimitUnit: 1000000,
-
-                timeLimitInput: 15,
-                timeLimitEnabled: true,
-                timeLimitUnit: 60,
-
                 shouldRegenLink: false,
                 generatingLinkRequest: false,
                 generatedLink: 'https://download.nicnl.com/e946c22fb68d859aef10d2bd0137baaddc231248f1a8f8517ed85db3d9f213caaa8c2eef7d7b1466fb70dcc0b71d00937b59306051b1d1ba17e4ea65345f34f5a542fa6174bc5f55e9ce90540bf284d581e08523eb154b0540902eb9c1a056fe-a5d34ef6dc/appIcon.png',
@@ -490,7 +427,6 @@
         },
         watch: {
             '$route.params.path': function(path) {
-                console.log("path has changed");
                 this.fetchList(this.routePath);
             },
         },
@@ -501,10 +437,9 @@
         },
         methods: {
             fetchList(path) {
-                console.log("fetching list for:" + path);
-
                 this.lastError = null;
-                this.$axios.get(this.$url + '/ls/' + path)
+
+                this.$axios.get(this.$url + '/guest/' + this.$route.params.mooltipass + '/ls/' + path)
                     .then((response) => {
                         this.path = response.data.path;
                         this.parent_path = response.data.parent_path;
@@ -578,93 +513,11 @@
             closeAnyPopup() {
                 if (this.generatingLinkRequest) return false;
 
-                this.shareFilePopupOpened = false;
-                this.shareDirPopupOpened = false;
-
                 this.notBlurredFile = null;
                 this.notBlurredDir = null;
 
                 return true;
             },
-            openShareFilePopup(i) {
-                if (!this.closeAnyPopup()) return;
-
-                this.speedLimitUnit = 1000000;
-                this.speedLimitInput = 1;
-                this.speedLimitEnabled = false;
-
-                this.timeLimitUnit = 60;
-                this.timeLimitInput = 15;
-                this.timeLimitEnabled = true;
-
-                this.notBlurredFile = i;
-                this.notBlurredDir = -1;
-                this.shareBasePath = this.files[i].path;
-
-                this.generatedLink = '';
-
-                this.shareFilePopupOpened = true;
-                this.linkParametersChanged();
-            },
-            openShareDirPopup(i) {
-                if (!this.closeAnyPopup()) return;
-
-                this.speedLimitUnit = 1000000;
-                this.speedLimitInput = 1;
-                this.speedLimitEnabled = false;
-
-                this.timeLimitUnit = 60;
-                this.timeLimitInput = 15;
-                this.timeLimitEnabled = true;
-
-                this.notBlurredFile = -1;
-                this.notBlurredDir = i;
-                this.shareBasePath = this.dirs[i].path;
-
-                this.generatedLink = '';
-
-                this.shareDirPopupOpened = true;
-                this.linkParametersChanged();
-            },
-            linkParametersChanged: _.debounce(function() {
-                //if (!this.shareFilePopupOpened && this.shareDirPopupOpened) return;
-
-                if (this.generatingLinkRequest) {
-                    this.shouldRegenLink = true;
-                    return;
-                }
-
-                this.generatingLinkRequest = true;
-                this.generatedLink = '';
-                this.$axios.post(this.$url + '/gen/', {
-                    path: this.shareBasePath,
-                    speed: this.speedLimitEnabled ? this.speedLimitInput * this.speedLimitUnit : 0,
-                    duration: this.timeLimitEnabled ? this.timeLimitInput * this.timeLimitUnit : 0,
-                })
-                    .then((response) => {
-
-                        if (this.shouldRegenLink) {
-                            this.linkParametersChanged();
-                        } else {
-                            if (this.shareFilePopupOpened)
-                                this.generatedLink = this.$downurl + '/' + response.data.path;
-                            else if (this.shareDirPopupOpened)
-                                this.generatedLink = /*this.$downurl*/ 'http://localhost:8080' + '/#/guest/explore/' + response.data.path;
-
-                            this.generatingLinkRequest = false;
-                        }
-                    })
-                    .catch((err) => {
-                        console.log(err);
-                        // Todo: afficher l'erreur
-
-                        if (this.shouldRegenLink) {
-                            this.linkParametersChanged();
-                        } else {
-                            this.generatingLinkRequest = false;
-                        }
-                    })
-            }, 165),
         }
     }
 </script>

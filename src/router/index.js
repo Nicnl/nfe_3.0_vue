@@ -3,6 +3,7 @@ import Router from 'vue-router'
 
 import Home from '@/views/Home'
 import ListFiles from '@/views/ListFiles'
+import GuestListFiles from '@/views/GuestListFiles'
 import Monitoring from '@/views/Monitoring'
 import NavBar from '@/components/Navigation/NavBar'
 
@@ -31,6 +32,22 @@ const router = new Router({
             name: 'ListFilesM',
             components: {
                 default: ListFiles,
+                navbar: NavBar
+            },
+        },
+        {
+            path: '/guest/explore/:mooltipass/',
+            name: 'GuestListFiles',
+            components: {
+                default: GuestListFiles,
+                navbar: NavBar
+            },
+        },
+        {
+            path: '/guest/explore/:mooltipass/:path',
+            name: 'GuestListFilesM',
+            components: {
+                default: GuestListFiles,
                 navbar: NavBar
             },
         },
