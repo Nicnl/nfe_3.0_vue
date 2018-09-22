@@ -715,7 +715,12 @@
                             if (this.shareFilePopupOpened)
                                 this.generatedLink = this.$downurl + '/' + response.data.path;
                             else if (this.shareDirPopupOpened)
-                                this.generatedLink = this.$downurl+ '/#/guest/explore/' + response.data.path; // Todo: pas bon, faut revoir
+                                this.generatedLink = this.$url + '/' + this.$router.resolve({
+                                    name: 'GuestListFiles',
+                                    params: {
+                                        mooltipass: response.data.path,
+                                    }
+                                }).href;
 
                             this.generatingLinkRequest = false;
                         }

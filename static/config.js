@@ -1,4 +1,4 @@
 window.appConfig = {
-    urlApi: 'http://vmshare.nicnl.com:9001',
-    urlDown: 'http://vmshare.nicnl.com:9000',
+    urlApi: 'http://localhost:9001',
+    urlDown: 'http://localhost:9000',
 };
