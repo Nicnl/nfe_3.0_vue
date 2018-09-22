@@ -150,7 +150,7 @@
 
                             this.$axios.defaults.headers.common['Authorization'] = 'Bearer ' + this.$session.get('jwt');
                             this.$eventbus.$emit('session_has_changed');
-                            this.$router.push({name: 'Home'});
+                            this.$router.push({name: 'ListFiles'});
                         }, 500);
                     })
                     .catch((error) => {

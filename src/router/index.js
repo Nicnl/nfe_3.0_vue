@@ -13,14 +13,14 @@ Vue.use(Router)
 
 const router = new Router({
     routes: [
-        {
+        /*{
             path: '/',
             name: 'Home',
             components: {
                 default: Home,
                 navbar: NavBar
             },
-        },
+        },*/
         {
             path: '/explore/',
             name: 'ListFiles',
