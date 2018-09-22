@@ -1,13 +1,16 @@
 <template>
-    <div class="columns is-centered">
-        <div v-if="lastError" class="column is-6-desktop is-6-fullhd">
+    <div v-if="lastError" class="columns is-centered">
+        <div class="column is-6-desktop is-6-fullhd">
             <div class="notification is-danger" style="margin-top: 10px;">
                 <button class="delete" @click="lastError = null"></button>
                 {{ lastError }}
             </div>
         </div>
+    </div>
 
-        <div v-else class="column is-10-desktop is-9-fullhd">
+    <div v-else class="columns is-centered">
+
+        <div class="column is-10-desktop is-9-fullhd">
             <table class="table">
                 <thead>
                 <tr>

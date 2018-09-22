@@ -1,5 +1,15 @@
 <template>
-    <div class="columns is-centered">
+    <div v-if="lastError" class="columns is-centered">
+        <div class="column is-6-desktop is-6-fullhd">
+            <div class="notification is-danger" style="margin-top: 10px;">
+                <button class="delete" @click="lastError = null"></button>
+                {{ lastError }}
+            </div>
+        </div>
+    </div>
+
+    <div v-else class="columns is-centered">
+
         <div class="column is-10-desktop is-9-fullhd">
             <table class="table download-list">
                 <thead>
@@ -69,6 +79,8 @@
                 </tr>
                 </tbody>
             </table>
+            <a class="button is-danger is-pulled-right" @click="clearTransfers" :disabled="isClearingTransfers" :class="{'is-loading': isClearingTransfers}">Vider la liste</a>
+            <div class="is-clearfix"></div>
         </div>
 
         <div class="full-background-shadow" :class="{visible: informationPopupOpened !== null}" @click="closeAnyPopup"></div>
@@ -534,6 +546,8 @@
         name: 'Monitoring',
         data () {
             return {
+                lastError: null,
+
                 notBlurredLine: null,
                 popupAutocloseTimeout: null,
 
@@ -551,6 +565,8 @@
                 informationPopupOpened: null,
                 informationPopupDurationInterval: null,
                 informationPopupDuration: 0,
+
+                isClearingTransfers: false,
 
                 transfers: {
                     /*
@@ -771,11 +787,29 @@
                 this.$axios.get(this.$url + '/transfers')
                     .then((response) => {
                         this.transfers = response.data;
-
                         doneCallback();
                     })
-                    .catch((error) => {
+                    .catch((err) => {
                         doneCallback();
+                        this.lastError = err;
+                    });
+            },
+            clearTransfers() {
+                if (this.isClearingTransfers) return;
+
+                this.isClearingTransfers = true;
+                this.$axios.delete(this.$url + '/transfers')
+                    .then((response) => {
+                        setTimeout(() => {
+                            this.transfers = response.data;
+                            this.isClearingTransfers = false;
+                        }, 500);
+                    })
+                    .catch((err) => {
+                        setTimeout(() => {
+                            this.lastError = err;
+                            this.isClearingTransfers = false;
+                        }, 500);
                     });
             },
             stateIcon(state) {
