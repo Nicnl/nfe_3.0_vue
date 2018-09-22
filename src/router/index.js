@@ -4,6 +4,7 @@ import Router from 'vue-router'
 import Home from '@/views/Home'
 import ListFiles from '@/views/ListFiles'
 import GuestListFiles from '@/views/GuestListFiles'
+import Login from '@/views/Login'
 import Monitoring from '@/views/Monitoring'
 import NavBar from '@/components/Navigation/NavBar'
 
@@ -59,7 +60,39 @@ const router = new Router({
                 navbar: NavBar
             },
         },
+        {
+            path: '/login',
+            name: 'Login',
+            components: {
+                default: Login,
+                navbar: NavBar
+            },
+        },
     ]
+});
+
+router.beforeEach((to, from, next) => {
+    if (to.name == 'GuestListFiles' || to.name == 'GuestListFilesM') {
+        next();
+        return;
+    }
+
+    if (router.app.$session.exists()) {
+        if (!router.app.$axios.defaults.headers.common.hasOwnProperty('Authorization')) {
+            router.app.$axios.defaults.headers.common['Authorization'] = 'Bearer ' + router.app.$session.get('jwt');
+
+            Vue.nextTick(() => {
+                router.app.$eventbus.$emit('authenticated');
+            });
+        }
+
+        if (to.name == 'Login') next({path: '/'});
+        else next();
+    }
+    else {
+        if (to.name == 'Login') next();
+        else next({path: '/login'});
+    }
 });
 
 export default router;

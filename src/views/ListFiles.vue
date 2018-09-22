@@ -529,6 +529,9 @@
                         else if (err.response.status === 404) {
                             this.lastError = 'Lien introuvable.';
                         }
+                        else if (err.response.status === 401) {
+                            this.lastError = 'Erreur d\'authentification.';
+                        }
                         else {
                             this.lastError = 'Erreur inconnue.';
                         }

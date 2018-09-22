@@ -1,7 +1,10 @@
 <template>
     <nav class="navbar is-dark container_row" role="navigation" aria-label="main navigation">
         <div class="navbar-brand">
-            <span class="navbar-item" style="font-size: 1.25em;"><router-link :to="{ name: 'ListFiles' }" style="color: inherit;">NFE 3.0</router-link></span>
+            <span class="navbar-item" style="font-size: 1.25em;">
+                <router-link v-if="is_logged" :to="{ name: 'ListFiles' }" style="color: inherit;">NFE 3.0</router-link>
+                <a v-else style="color: inherit;">NFE 3.0</a>
+            </span>
             <div class="navbar-burger burger" data-target="navbarExampleTransparentExample" :class="{'is-active': burgerOpened}" @click="toggleBurger">
                 <span></span>
                 <span></span>
@@ -30,7 +33,7 @@
                 </div>
                 -->
 
-                <div class="navbar-item has-dropdown is-hoverable">
+                <div class="navbar-item has-dropdown is-hoverable" v-if="is_logged && user_admin">
                     <a class="navbar-link">Administration</a>
                     <div class="navbar-dropdown dropdown-right is-boxed">
                         <router-link class="navbar-item" :to="{ name: 'Monitoring' }">
@@ -39,7 +42,7 @@
                     </div>
                 </div>
 
-                <a class="navbar-item"><i class="fal fa-sign-out"></i><span class="is-hidden-desktop">Déconnexion</span></a>
+                <a v-if="is_logged" class="navbar-item" @click="disconnect"><i class="fal fa-sign-out"></i><span class="is-hidden-desktop">Déconnexion</span></a>
 
 
             </div>
@@ -85,7 +88,17 @@
                 //listEnabled: false,
                 //recursiveEnabled: true,
                 burgerOpened: false,
+
+                is_logged: false,
+                user_admin: false,
             }
+        },
+        created() {
+            this.$eventbus.$on('session_has_changed', this.sessionHasChanged);
+            this.sessionHasChanged();
+        },
+        beforeDestroy() {
+            this.$eventbus.$off('session_has_changed', this.sessionHasChanged);
         },
         methods: {
             /*toggleList() {
@@ -94,8 +107,18 @@
             toggleRecursive() {
                 this.recursiveEnabled = !this.recursiveEnabled;
             },*/
+            sessionHasChanged() {
+                this.is_logged = this.$session.exists();
+                this.user_admin = this.is_logged && this.$session.get('user_admin');
+            },
             toggleBurger() {
                 this.burgerOpened = !this.burgerOpened;
+            },
+            disconnect() {
+                this.$session.destroy();
+                delete this.$axios.defaults.headers.common['Authorization'];
+                this.$eventbus.$emit('session_has_changed');
+                this.$router.push({name: 'Login'});
             },
         }
     }
