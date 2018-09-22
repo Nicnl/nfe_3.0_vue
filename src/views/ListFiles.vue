@@ -59,7 +59,7 @@
         <div class="share-popup" :class="{visible: shareFilePopupOpened || shareDirPopupOpened}">
             <div class="share-title"><h4>Partager un {{ shareFilePopupOpened && !shareDirPopupOpened ? 'fichier' : '' }}{{ !shareFilePopupOpened && shareDirPopupOpened ? 'dossier' : '' }}</h4></div>
 
-            <div class="pretty p-switch p-fill speed-limit-checkbox"><input type="checkbox" v-model="speedLimitEnabled" @change="linkParametersChanged"/><div class="state p-info"><label></label></div></div>
+            <div class="pretty p-switch p-fill speed-limit-checkbox"><input type="checkbox" v-model="speedLimitEnabled" @change="linkParametersChanged" :disabled="$session.get('max_bandwidth') > 0"/><div class="state p-info"><label></label></div></div>
             <h4 class="limit-speed-title">Limiter le débit</h4>
 
             <div class="field has-addons has-addons-centered speed-limit-form" :class="{hidden: !speedLimitEnabled}">
@@ -68,14 +68,14 @@
                     <span class="select" @change="linkParametersChanged">
                         <select v-model="speedLimitUnit">
                             <option value="1">o/s</option>
-                            <option value="1000">Ko/s</option>
-                            <option value="1000000">Mo/s</option>
+                            <option v-if="!$session.get('max_bandwidth') || $session.get('max_bandwidth') >= 1000" value="1000">Ko/s</option>
+                            <option v-if="!$session.get('max_bandwidth') || $session.get('max_bandwidth') >= 1000000" value="1000000">Mo/s</option>
                         </select>
                     </span>
                 </p>
             </div>
 
-            <div class="pretty p-switch p-fill time-limit-checkbox"><input type="checkbox" v-model="timeLimitEnabled" @change="linkParametersChanged"/><div class="state p-info"><label></label></div></div>
+            <div class="pretty p-switch p-fill time-limit-checkbox"><input type="checkbox" v-model="timeLimitEnabled" @change="linkParametersChanged" :disabled="$session.get('max_duration') > 0"/><div class="state p-info"><label></label></div></div>
             <h4 class="limit-time-title">Limiter la durée</h4>
 
             <div class="field has-addons has-addons-centered time-limit-form" :class="{hidden: !timeLimitEnabled}">
@@ -84,10 +84,10 @@
                     <span class="select">
                         <select v-model="timeLimitUnit" @change="linkParametersChanged">
                             <option :value="1">secondes</option>
-                            <option :value="1 * 60">minutes</option>
-                            <option :value="1 * 60 * 60">heures</option>
-                            <option :value="1 * 60 * 60 * 24">jours</option>
-                            <option :value="1 * 60 * 60 * 24 * 7">semaines</option>
+                            <option v-if="!$session.get('max_duration') || $session.get('max_duration') >= 1 * 60" :value="1 * 60">minutes</option>
+                            <option v-if="!$session.get('max_duration') || $session.get('max_duration') >= 1 * 60 * 60" :value="1 * 60 * 60">heures</option>
+                            <option v-if="!$session.get('max_duration') || $session.get('max_duration') >= 1 * 60 * 60 * 24" :value="1 * 60 * 60 * 24">jours</option>
+                            <option v-if="!$session.get('max_duration') || $session.get('max_duration') >= 1 * 60 * 60 * 24 * 7" :value="1 * 60 * 60 * 24 * 7">semaines</option>
                         </select>
                     </span>
                 </p>
@@ -419,11 +419,11 @@
 
 
                 speedLimitInput: 1,
-                speedLimitEnabled: false,
+                speedLimitEnabled: !!this.$session.get('max_bandwidth'),
                 speedLimitUnit: 1000000,
 
                 timeLimitInput: 15,
-                timeLimitEnabled: true,
+                timeLimitEnabled: !!this.$session.get('max_duration'),
                 timeLimitUnit: 60,
 
                 shouldRegenLink: false,
@@ -595,13 +595,21 @@
             openShareFilePopup(i) {
                 if (!this.closeAnyPopup()) return;
 
-                this.speedLimitUnit = 1000000;
-                this.speedLimitInput = 1;
-                this.speedLimitEnabled = false;
+                this.speedLimitEnabled = !!this.$session.get('max_bandwidth') || false;
+                if (this.$session.get('max_bandwidth')) {
+                    this.figureOutSpeedLimit(this.$session.get('max_bandwidth'));
+                } else {
+                    this.speedLimitUnit = 1000000;
+                    this.speedLimitInput = 1;
+                }
 
-                this.timeLimitUnit = 60;
-                this.timeLimitInput = 15;
-                this.timeLimitEnabled = true;
+                this.timeLimitEnabled = !!this.$session.get('max_duration') || true;
+                if (this.$session.get('max_duration')) {
+                    this.figureOutTimeLimit(this.$session.get('max_duration'));
+                } else {
+                    this.timeLimitUnit = 60;
+                    this.timeLimitInput = 15;
+                }
 
                 this.notBlurredFile = i;
                 this.notBlurredDir = -1;
@@ -615,13 +623,21 @@
             openShareDirPopup(i) {
                 if (!this.closeAnyPopup()) return;
 
-                this.speedLimitUnit = 1000000;
-                this.speedLimitInput = 1;
-                this.speedLimitEnabled = false;
+                this.speedLimitEnabled = !!this.$session.get('max_bandwidth') || false;
+                if (this.$session.get('max_bandwidth')) {
+                    this.figureOutSpeedLimit(this.$session.get('max_bandwidth'));
+                } else {
+                    this.speedLimitUnit = 1000000;
+                    this.speedLimitInput = 1;
+                }
 
-                this.timeLimitUnit = 60;
-                this.timeLimitInput = 15;
-                this.timeLimitEnabled = true;
+                this.timeLimitEnabled = !!this.$session.get('max_duration') || true;
+                if (this.$session.get('max_duration')) {
+                    this.figureOutTimeLimit(this.$session.get('max_duration'));
+                } else {
+                    this.timeLimitUnit = 60;
+                    this.timeLimitInput = 15;
+                }
 
                 this.notBlurredFile = -1;
                 this.notBlurredDir = i;
@@ -632,6 +648,42 @@
                 this.shareDirPopupOpened = true;
                 this.linkParametersChanged();
             },
+            figureOutSpeedLimit(value) {
+                if (1000 > value) {
+                    this.speedLimitUnit = 1;
+                    this.speedLimitInput = value;
+                }
+                else if (1000000 > value) {
+                    this.speedLimitUnit = 1000;
+                    this.speedLimitInput = (value / 1000).toFixed(2);
+                }
+                else {
+                    this.speedLimitUnit = 1000000;
+                    this.speedLimitInput = (value / 1000000).toFixed(2);
+                }
+            },
+            figureOutTimeLimit(value) {
+                if (1*60 > value) {
+                    this.timeLimitUnit = 1;
+                    this.timeLimitInput = value;
+                }
+                else if (1*60*60 > value) {
+                    this.timeLimitUnit = 1*60;
+                    this.timeLimitInput = (value / (1*60)).toFixed(2);
+                }
+                else if (1*60*60*24 > value) {
+                    this.timeLimitUnit = 1*60*60;
+                    this.timeLimitInput = (value / (1*60*60)).toFixed(2);
+                }
+                else if (1*60*60*24*7 > value) {
+                    this.timeLimitUnit = 1*60*60*24;
+                    this.timeLimitInput = (value / (1*60*60*24)).toFixed(2);
+                }
+                else {
+                    this.timeLimitUnit = 1 * 60 * 60 * 24 * 7;
+                    this.timeLimitInput = (value / (1 * 60 * 60 * 24 * 7)).toFixed(2);
+                }
+            },
             linkParametersChanged: _.debounce(function() {
                 //if (!this.shareFilePopupOpened && this.shareDirPopupOpened) return;
 
@@ -640,12 +692,20 @@
                     return;
                 }
 
+                if (this.$session.get('max_bandwidth') && this.speedLimitInput * this.speedLimitUnit > this.$session.get('max_bandwidth')) {
+                    this.figureOutSpeedLimit(this.$session.get('max_bandwidth'));
+                }
+
+                if (this.$session.get('max_duration') && this.timeLimitInput * this.timeLimitUnit > this.$session.get('max_duration')) {
+                    this.figureOutTimeLimit(this.$session.get('max_duration'));
+                }
+
                 this.generatingLinkRequest = true;
                 this.generatedLink = '';
                 this.$axios.post(this.$url + '/gen/', {
                     path: this.shareBasePath,
-                    speed: this.speedLimitEnabled ? this.speedLimitInput * this.speedLimitUnit : 0,
-                    duration: this.timeLimitEnabled ? this.timeLimitInput * this.timeLimitUnit : 0,
+                    speed: Math.floor(this.speedLimitEnabled ? this.speedLimitInput * this.speedLimitUnit : 0),
+                    duration: Math.floor(this.timeLimitEnabled ? this.timeLimitInput * this.timeLimitUnit : 0),
                 })
                     .then((response) => {
 

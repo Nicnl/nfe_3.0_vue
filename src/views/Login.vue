@@ -103,8 +103,9 @@
                             this.$session.start();
 
                             this.$session.set('jwt', response.data.token);
-                            this.$session.set('user_id', response.data.user_id);
                             this.$session.set('user_admin', response.data.user_admin);
+                            this.$session.set('max_bandwidth', response.data.max_bandwidth);
+                            this.$session.set('max_duration', response.data.max_duration);
 
                             this.$axios.defaults.headers.common['Authorization'] = 'Bearer ' + this.$session.get('jwt');
                             this.$eventbus.$emit('session_has_changed');
