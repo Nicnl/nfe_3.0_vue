@@ -604,7 +604,7 @@
                 }
 
                 this.timeLimitEnabled = !!this.$session.get('max_duration') || true;
-                if (this.$session.get('max_duration')) {
+                if (this.$session.get('max_duration') && 60*15 > this.$session.get('max_duration')) {
                     this.figureOutTimeLimit(this.$session.get('max_duration'));
                 } else {
                     this.timeLimitUnit = 60;
@@ -632,7 +632,7 @@
                 }
 
                 this.timeLimitEnabled = !!this.$session.get('max_duration') || true;
-                if (this.$session.get('max_duration')) {
+                if (this.$session.get('max_duration') && 60*15 > this.$session.get('max_duration')) {
                     this.figureOutTimeLimit(this.$session.get('max_duration'));
                 } else {
                     this.timeLimitUnit = 60;
