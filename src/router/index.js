@@ -1,7 +1,7 @@
 import Vue from 'vue'
 import Router from 'vue-router'
 
-import Home from '@/views/Home'
+import NotFound404 from '@/views/NotFound404'
 import ListFiles from '@/views/ListFiles'
 import GuestListFiles from '@/views/GuestListFiles'
 import Login from '@/views/Login'
@@ -77,6 +77,13 @@ const router = new Router({
                 navbar: NavBar
             },
         },
+        {
+            path: "*",
+            components: {
+                default: NotFound404,
+                navbar: NavBar
+            },
+        }
     ]
 });
 
