@@ -37,7 +37,7 @@
 
                 <tr v-for="transfer in orderedTransfers" :key="transfer.guid" class="blur-animated" :class="{blurred: notBlurredLine !== null && transfer.guid !== notBlurredLine, unblurred: !(notBlurredLine !== null && transfer.guid !== notBlurredLine)}">
                     <td style="text-align: center;"><i class="fal" :class="stateIcon(transfer.current_state)"></i></td>
-                    <td><a href="http://google.fr">{{ transfer.file_name }}</a></td>
+                    <td>{{ transfer.file_name }}</td>
                     <td class="speed-indicator">{{ speedRound(transfer.current_speed) }}<span class="unit">{{ speedUnit(transfer.current_speed) }}</span><span v-if="transfer.current_speed_limit != 0" style="color: #df372d;"><br/><i class="fal fa-tachometer" style="margin-right: 4px;"></i>{{ speedRound(transfer.current_speed_limit) }}<span class="unit">{{ speedUnit(transfer.current_speed_limit) }}</span></span></td>
                     <td>
                         <div class="progress-bar" :class="['transfer-state-' + transfer.current_state]"><div class="bar-1" :style="{width: percentBar1(transfer) + '%'}" v-if="percentBar1(transfer) > 0"></div><div class="bar-2" :style="{width: percentBar2(transfer) + '%'}" v-if="percentBar2(transfer) > 0"></div><div class="bar-3" :style="{width: percentBar3(transfer) + '%'}" v-if="percentBar3(transfer) > 0"></div><div class="bar-4" :style="{width: percentBar4(transfer) + '%'}" v-if="percentBar4(transfer) > 0"></div><h5 class="progress-percentage">{{ (transfer.downloaded / transfer.section_length * 100).toFixed(1) }}%</h5></div>
