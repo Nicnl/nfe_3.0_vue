@@ -787,6 +787,7 @@
                 this.$axios.get(this.$url + '/api/transfers')
                     .then((response) => {
                         this.transfers = response.data;
+                        this.lastError = null;
                         doneCallback();
                     })
                     .catch((err) => {
