@@ -23,7 +23,7 @@ const router = new Router({
         },*/
         {
             path: '/',
-            name: 'ListFiles',
+            name: 'ListFilesHome',
             components: {
                 default: ListFiles,
                 navbar: NavBar
