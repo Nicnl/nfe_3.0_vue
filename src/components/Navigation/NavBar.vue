@@ -2,7 +2,7 @@
     <nav class="navbar is-dark container_row" role="navigation" aria-label="main navigation">
         <div class="navbar-brand">
             <span class="navbar-item" style="font-size: 1.25em;">
-                <router-link v-if="is_logged" :to="{ name: 'ListFiles' }" style="color: inherit;">NFE 3.0</router-link>
+                <router-link v-if="is_logged" :to="{ name: 'ListFilesHome' }" style="color: inherit;">NFE 3.0</router-link>
                 <a v-else style="color: inherit;">NFE 3.0</a>
             </span>
             <div class="navbar-burger burger" data-target="navbarExampleTransparentExample" :class="{'is-active': burgerOpened}" @click="toggleBurger">
