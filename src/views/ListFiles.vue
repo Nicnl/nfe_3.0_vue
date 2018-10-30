@@ -878,7 +878,7 @@
                         }
 
                         this.displayList += this.$downurl + '/' + response.data.path + '/' + encodeURI(elem.name);
-                        setTimeout(this.generateNextLink, 25); // Pour que ça soit joli :)
+                        setTimeout(this.generateNextLink, 10); // Pour que ça soit joli :)
                     }
                 })
                 .catch((err) => {
