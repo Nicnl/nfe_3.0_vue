@@ -2,7 +2,7 @@
     <nav class="navbar is-dark container_row" role="navigation" aria-label="main navigation">
         <div class="navbar-brand">
             <span class="navbar-item" style="font-size: 1.25em;">
-                <router-link v-if="is_logged" :to="{ name: 'ListFilesHome' }" style="color: inherit;">NFE 3.0</router-link>
+                <router-link v-if="is_logged" :to="{ name: 'ListFilesHome' }" style="color: inherit;" @click="disableListing">NFE 3.0</router-link>
                 <a v-else style="color: inherit;">NFE 3.0</a>
             </span>
             <div class="navbar-burger burger" data-target="navbarExampleTransparentExample" :class="{'is-active': burgerOpened}" @click="toggleBurger">
@@ -19,19 +19,19 @@
 
             <div class="navbar-end">
 
-                <!--
-                <div class="navbar-item has-dropdown is-hoverable">
-                    <a class="navbar-link">Options</a>
+                <div v-if="moreOptionsVisible" class="navbar-item has-dropdown is-hoverable">
+                    <a class="navbar-link">Plus d'options</a>
                     <div class="navbar-dropdown dropdown-right is-boxed">
                         <a class="navbar-item" :class="{'is-enabled': listEnabled}" @click="toggleList">
                             <i class="fal" :class="{'fa-list-ul': !listEnabled, 'fa-check': listEnabled}"></i> Liste
                         </a>
+                        <!--
                         <a class="navbar-item" :class="{'is-enabled': recursiveEnabled}" @click="toggleRecursive">
                             <i class="fal" :class="{'fa-folders': !recursiveEnabled, 'fa-check': recursiveEnabled}"></i> Récursif
                         </a>
+                        -->
                     </div>
                 </div>
-                -->
 
                 <div class="navbar-item has-dropdown is-hoverable" v-if="is_logged && user_admin">
                     <a class="navbar-link">Administration</a>
@@ -58,18 +58,15 @@
             margin-right: 6px;
         }
 
-        /*
         &:hover {
             &.is-enabled {
                 background-color: #eaf5ea;
             }
         }
 
-
         &.is-enabled {
             background-color: #effaef;
         }
-        */
     }
 
     .navbar-dropdown {
@@ -85,7 +82,7 @@
         name: 'NavBar',
         data() {
             return {
-                //listEnabled: false,
+                listEnabled: false,
                 //recursiveEnabled: true,
                 burgerOpened: false,
 
@@ -95,16 +92,27 @@
         },
         created() {
             this.$eventbus.$on('session_has_changed', this.sessionHasChanged);
+            this.$eventbus.$on('list_mode_disable', this.listModeDisable);
             this.sessionHasChanged();
         },
         beforeDestroy() {
             this.$eventbus.$off('session_has_changed', this.sessionHasChanged);
+            this.$eventbus.$off('list_mode_disable', this.listModeDisable);
         },
         methods: {
-            /*toggleList() {
+            toggleList() {
                 this.listEnabled = !this.listEnabled;
+
+                this.$eventbus.$emit('list_mode_changed', this.listEnabled);
             },
-            toggleRecursive() {
+            listModeDisable() {
+                this.listEnabled = false;
+            },
+            disableListing() {
+                this.listEnabled = false;
+                this.$eventbus.$emit('list_mode_changed', false);
+            },
+            /*toggleRecursive() {
                 this.recursiveEnabled = !this.recursiveEnabled;
             },*/
             sessionHasChanged() {
@@ -120,6 +128,9 @@
                 this.$eventbus.$emit('session_has_changed');
                 this.$router.push({name: 'Login'});
             },
-        }
+        },
+        props: [
+            'moreOptionsVisible'
+        ],
     }
 </script>

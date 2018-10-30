@@ -10,7 +10,7 @@
 
     <div v-else class="columns is-centered">
         <div class="column is-10-desktop is-9-fullhd">
-            <table class="table">
+            <table v-if="!listModeEnabled" class="table">
                 <thead>
                 <tr>
                     <th width="30px"></th>
@@ -42,11 +42,13 @@
 
                 <tr v-for="(file, i) in files" :key="'file' + i" class="blur-animated" :class="{blurred: notBlurredFile !== null && i !== notBlurredFile, unblurred: !(notBlurredFile !== null && i !== notBlurredFile)}">
                     <td><i class="fal" :class="icon(file.name)"></i></td>
-                    <td><a :href="$downurl + '/' + $route.params.mooltipass + '/osef/guest/' + file.path">{{ file.name }}</a></td>
+                    <td><a :href="$downurl + '/' + $route.params.mooltipass + '/down/guest/' + file.path">{{ file.name }}</a></td>
                     <td><span class="size">{{ sizeRound(file.size) }}</span><span class="extension">{{ sizeUnit(file.size) }}</span></td>
                 </tr>
                 </tbody>
             </table>
+
+            <pre v-else class="link-list">{{ linkList }}</pre>
         </div>
     </div>
 </template>
@@ -257,6 +259,15 @@
         transition: opacity 230ms;
     }
 
+    .link-list {
+        margin-top: 10px;
+        background-color: white;
+        padding: 9px;
+        border-radius: 6px;
+        border: 1px solid rgba(0, 0, 0, 0.13);
+        font-size: 10.5px;
+    }
+
     table.table {
         width: 100%;
         background-color: #f5f7fa;
@@ -366,6 +377,10 @@
                 generatingLinkRequest: false,
                 generatedLink: 'https://download.nicnl.com/e946c22fb68d859aef10d2bd0137baaddc231248f1a8f8517ed85db3d9f213caaa8c2eef7d7b1466fb70dcc0b71d00937b59306051b1d1ba17e4ea65345f34f5a542fa6174bc5f55e9ce90540bf284d581e08523eb154b0540902eb9c1a056fe-a5d34ef6dc/appIcon.png',
 
+                listModeEnabled: false,
+
+                linkList: '',
+
                 path: null,
                 parent_path: null,
                 dirs: [/*
@@ -426,9 +441,16 @@
         },
         created() {
             this.fetchList(this.routePath);
+
+            this.$eventbus.$on('list_mode_changed', this.listModeChanged);
+        },
+        beforeDestroy() {
+            this.$eventbus.$emit('list_mode_disable');
+            this.$eventbus.$off('list_mode_changed', this.listModeChanged);
         },
         watch: {
             '$route.params.path': function(path) {
+                this.listModeEnabled = false;
                 this.fetchList(this.routePath);
             },
         },
@@ -438,6 +460,14 @@
             },
         },
         methods: {
+            listModeChanged(state) {
+                console.log("issou : " + state);
+                this.listModeEnabled = state;
+                if (state) {
+                    this.linkList = '';
+                    this.fetchList(this.routePath);
+                }
+            },
             fetchList(path) {
                 this.lastError = null;
 
@@ -447,6 +477,16 @@
                         this.parent_path = response.data.parent_path;
                         this.dirs = response.data.dirs;
                         this.files = response.data.files;
+
+                        if (this.listModeEnabled) {
+                            for (let i in this.files) {
+                                if (this.linkList !== '') {
+                                    this.linkList += "\n";
+                                }
+
+                                this.linkList += this.$downurl + '/' + this.$route.params.mooltipass + '/down/guest/' + this.files[i].path + '/' + encodeURI(this.files[i].name);
+                            }
+                        }
                     })
                     .catch((err) => {
                         console.log(err); // Todo: afficher l'erreur

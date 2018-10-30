@@ -11,7 +11,7 @@
     <div v-else class="columns is-centered">
 
         <div class="column is-10-desktop is-9-fullhd">
-            <table class="table">
+            <table v-if="displayList === null" class="table">
                 <thead>
                 <tr>
                     <th width="30px"></th>
@@ -52,12 +52,21 @@
                 </tr>
                 </tbody>
             </table>
+
+            <template v-else>
+                <div class="button is-loading generate-link-loading" v-if="generatingLinks" disabled></div>
+                <pre class="link-list">{{ displayList }}</pre>
+            </template>
         </div>
 
 
-        <div class="full-background-shadow" :class="{visible: shareFilePopupOpened || shareDirPopupOpened}" @click="closeAnyPopup"></div>
-        <div class="share-popup" :class="{visible: shareFilePopupOpened || shareDirPopupOpened}">
-            <div class="share-title"><h4>Partager un {{ shareFilePopupOpened && !shareDirPopupOpened ? 'fichier' : '' }}{{ !shareFilePopupOpened && shareDirPopupOpened ? 'dossier' : '' }}</h4></div>
+        <div class="full-background-shadow" :class="{visible: shareFilePopupOpened || shareDirPopupOpened || shareListPopupEnabled}" @click="closeAnyPopup(true)"></div>
+        <div class="share-popup" :class="{visible: shareFilePopupOpened || shareDirPopupOpened || shareListPopupEnabled, smaller: shareListPopupEnabled}">
+
+            <div class="share-title">
+                <h4 v-if="shareListPopupEnabled">Génération de liens</h4>
+                <h4 v-else>Partager un {{ shareFilePopupOpened && !shareDirPopupOpened ? 'fichier' : '' }}{{ !shareFilePopupOpened && shareDirPopupOpened ? 'dossier' : '' }}</h4>
+            </div>
 
             <div class="pretty p-switch p-fill speed-limit-checkbox"><input type="checkbox" v-model="speedLimitEnabled" @change="linkParametersChanged" :disabled="$session.get('max_bandwidth') > 0"/><div class="state p-info"><label></label></div></div>
             <h4 class="limit-speed-title">Limiter le débit</h4>
@@ -93,7 +102,11 @@
                 </p>
             </div>
 
-            <div class="field link-text-area">
+            <div v-if="shareListPopupEnabled" class="">
+                <div class="generate-link-button button is-info" @click="generateLinks">Générer les liens</div>
+            </div>
+
+            <div v-else class="field link-text-area">
                 <div class="control is-small" :class="{'is-loading': generatingLinkRequest}">
                     <textarea class="textarea is-small" type="text" placeholder="" v-model="generatedLink" readonly></textarea>
                 </div>
@@ -156,6 +169,10 @@
             opacity: 1;
         }
 
+        &.smaller {
+            height: 170px;
+        }
+
         transition: opacity 200ms, height 350ms;
 
         .share-title {
@@ -208,7 +225,7 @@
             transition: opacity 200ms;
         }
 
-        .link-text-area {
+        .link-text-area, .generate-link-button {
             position: absolute;
 
             width: 100%;
@@ -306,6 +323,25 @@
         }
 
         transition: opacity 230ms;
+    }
+
+    .generate-link-loading {
+        position: absolute;
+
+        margin-top: 11px;
+        margin-left: -36px;
+
+        width: 32px;
+        height: 32px;
+    }
+
+    .link-list {
+        margin-top: 10px;
+        background-color: white;
+        padding: 9px;
+        border-radius: 6px;
+        border: 1px solid rgba(0, 0, 0, 0.13);
+        font-size: 10.5px;
     }
 
     table.table {
@@ -414,9 +450,14 @@
                 notBlurredDir: null,
 
                 shareBasePath: null,
+
                 shareFilePopupOpened: false,
                 shareDirPopupOpened: false,
+                shareListPopupEnabled: false,
 
+                generatingLinks: false,
+                displayList: null,
+                linksToGenerate: [],
 
                 speedLimitInput: 1,
                 speedLimitEnabled: !!this.$session.get('max_bandwidth'),
@@ -428,7 +469,7 @@
 
                 shouldRegenLink: false,
                 generatingLinkRequest: false,
-                generatedLink: 'https://download.nicnl.com/e946c22fb68d859aef10d2bd0137baaddc231248f1a8f8517ed85db3d9f213caaa8c2eef7d7b1466fb70dcc0b71d00937b59306051b1d1ba17e4ea65345f34f5a542fa6174bc5f55e9ce90540bf284d581e08523eb154b0540902eb9c1a056fe-a5d34ef6dc/appIcon.png',
+                generatedLink: '',
 
                 path: null,
                 parent_path: null,
@@ -490,10 +531,22 @@
         },
         created() {
             this.fetchList(this.routePath);
+
+            this.$eventbus.$on('list_mode_changed', this.listModeChanged);
+        },
+        beforeDestroy() {
+            this.$eventbus.$emit('list_mode_disable');
+            this.$eventbus.$off('list_mode_changed', this.listModeChanged);
         },
         watch: {
             '$route.params.path': function(path) {
                 console.log("path has changed");
+
+                this.$eventbus.$emit('list_mode_disable');
+                this.generatingLinks = false;
+                this.displayList = null;
+                this.linksToGenerate = [];
+
                 this.fetchList(this.routePath);
             },
         },
@@ -503,6 +556,16 @@
             },
         },
         methods: {
+            listModeChanged(state) {
+                console.log("issou : " + state);
+                if (state) {
+                    this.openShareListPopup();
+                } else {
+                    this.generatingLinks = false;
+                    this.displayList = null;
+                    this.linksToGenerate = [];
+                }
+            },
             fetchList(path) {
                 console.log("fetching list for:" + path);
 
@@ -581,16 +644,49 @@
                 }
                 return 'fa-file';
             },
-            closeAnyPopup() {
+            closeAnyPopup(revertOptions=false) {
                 if (this.generatingLinkRequest) return false;
+                if (this.generatingLinks) return false;
+
+                if (revertOptions) {
+                    this.$eventbus.$emit('list_mode_disable');
+                }
 
                 this.shareFilePopupOpened = false;
                 this.shareDirPopupOpened = false;
+                this.shareListPopupEnabled = false;
 
                 this.notBlurredFile = null;
                 this.notBlurredDir = null;
 
                 return true;
+            },
+            openShareListPopup() {
+                if (!this.closeAnyPopup()) return;
+
+                this.speedLimitEnabled = !!this.$session.get('max_bandwidth') || false;
+                if (this.$session.get('max_bandwidth')) {
+                    this.figureOutSpeedLimit(this.$session.get('max_bandwidth'));
+                } else {
+                    this.speedLimitUnit = 1000000;
+                    this.speedLimitInput = 1;
+                }
+
+                this.timeLimitEnabled = !!this.$session.get('max_duration') || true;
+                if (this.$session.get('max_duration') && 60*15 > this.$session.get('max_duration')) {
+                    this.figureOutTimeLimit(this.$session.get('max_duration'));
+                } else {
+                    this.timeLimitUnit = 60;
+                    this.timeLimitInput = 15;
+                }
+
+                this.notBlurredFile = -1;
+                this.notBlurredDir = -1;
+
+                this.generatedLink = '';
+
+                this.shareListPopupEnabled = true;
+                this.linkParametersChanged();
             },
             openShareFilePopup(i) {
                 if (!this.closeAnyPopup()) return;
@@ -700,13 +796,14 @@
                     this.figureOutTimeLimit(this.$session.get('max_duration'));
                 }
 
-                this.generatingLinkRequest = true;
-                this.generatedLink = '';
-                this.$axios.post(this.$url + '/api/gen/', {
-                    path: this.shareBasePath,
-                    speed: Math.floor(this.speedLimitEnabled ? this.speedLimitInput * this.speedLimitUnit : 0),
-                    duration: Math.floor(this.timeLimitEnabled ? this.timeLimitInput * this.timeLimitUnit : 0),
-                })
+                if (this.shareDirPopupOpened || this.shareFilePopupOpened) {
+                    this.generatingLinkRequest = true;
+                    this.generatedLink = '';
+                    this.$axios.post(this.$url + '/api/gen/', {
+                        path: this.shareBasePath,
+                        speed: Math.floor(this.speedLimitEnabled ? this.speedLimitInput * this.speedLimitUnit : 0),
+                        duration: Math.floor(this.timeLimitEnabled ? this.timeLimitInput * this.timeLimitUnit : 0),
+                    })
                     .then((response) => {
 
                         if (this.shouldRegenLink) {
@@ -734,8 +831,61 @@
                         } else {
                             this.generatingLinkRequest = false;
                         }
-                    })
+                    });
+                } else if (this.shareListPopupEnabled) {
+                    console.log('issou');
+                } else {
+                    this.closeAnyPopup();
+                    console.log('wtf!');
+                }
             }, 165),
+
+            generateLinks() {
+                if (!this.closeAnyPopup()) return;
+
+                // Préparation de la list edes liens à générer
+                this.generatingLinks = true;
+                this.linksToGenerate = [];
+                for (let i in this.files) {
+                    this.linksToGenerate[i] = {
+                        name: this.files[i].name,
+                        path: this.files[i].path,
+                    }
+                }
+                console.log(this.linksToGenerate);
+
+                // Génération des liens
+
+                this.displayList = '';
+                this.generateNextLink();
+            },
+            generateNextLink() {
+                if (this.linksToGenerate.length <= 0) {
+                    this.generatingLinks = false;
+                    return;
+                }
+                let elem = this.linksToGenerate.shift();
+
+                this.$axios.post(this.$url + '/api/gen/', {
+                    path: elem.path,
+                    speed: Math.floor(this.speedLimitEnabled ? this.speedLimitInput * this.speedLimitUnit : 0),
+                    duration: Math.floor(this.timeLimitEnabled ? this.timeLimitInput * this.timeLimitUnit : 0),
+                })
+                .then((response) => {
+                    if (this.generatingLinks) { // Au cas ou le mode list aurait été désactivé avant
+                        if (this.displayList !== '') {
+                            this.displayList += "\n";
+                        }
+
+                        this.displayList += this.$downurl + '/' + response.data.path + '/' + encodeURI(elem.name);
+                        setTimeout(this.generateNextLink, 25); // Pour que ça soit joli :)
+                    }
+                })
+                .catch((err) => {
+                    console.log(err);
+                    // Todo: afficher l'erreur
+                });
+            }
         }
     }
 </script>

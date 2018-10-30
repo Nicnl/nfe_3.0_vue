@@ -28,6 +28,11 @@ const router = new Router({
                 default: ListFiles,
                 navbar: NavBar
             },
+            props: {
+                navbar: {
+                    moreOptionsVisible: true,
+                }
+            }
         },
         {
             path: '/explore/',
@@ -36,6 +41,11 @@ const router = new Router({
                 default: ListFiles,
                 navbar: NavBar
             },
+            props: {
+                navbar: {
+                    moreOptionsVisible: true,
+                }
+            }
         },
         {
             path: '/explore/:path',
@@ -44,6 +54,11 @@ const router = new Router({
                 default: ListFiles,
                 navbar: NavBar
             },
+            props: {
+                navbar: {
+                    moreOptionsVisible: true,
+                }
+            }
         },
         {
             path: '/guest/explore/:mooltipass/',
@@ -52,6 +67,11 @@ const router = new Router({
                 default: GuestListFiles,
                 navbar: NavBar
             },
+            props: {
+                navbar: {
+                    moreOptionsVisible: true,
+                }
+            }
         },
         {
             path: '/guest/explore/:mooltipass/:path',
@@ -60,6 +80,11 @@ const router = new Router({
                 default: GuestListFiles,
                 navbar: NavBar
             },
+            props: {
+                navbar: {
+                    moreOptionsVisible: true,
+                }
+            }
         },
         {
             path: '/monitoring',
