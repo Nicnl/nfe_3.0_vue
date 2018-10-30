@@ -162,7 +162,7 @@
 
             width: 100%;
 
-            background-color: red;
+            //background-color: red;
 
             left: 0;
             bottom: 0;
