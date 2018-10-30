@@ -108,7 +108,7 @@
 
             <div v-else class="field link-text-area">
                 <div class="control is-small" :class="{'is-loading': generatingLinkRequest}">
-                    <textarea class="textarea is-small" type="text" placeholder="" v-model="generatedLink" readonly></textarea>
+                    <textarea class="textarea is-small" type="text" placeholder="" v-model="generatedLink" @click="$event.target.select()" readonly></textarea>
                 </div>
             </div>
         </div>
