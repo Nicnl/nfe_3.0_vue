@@ -572,6 +572,16 @@
                 this.lastError = null;
                 this.$axios.get(this.$url + '/api/ls/' + path)
                     .then((response) => {
+                        response.data.dirs.sort((a, b) => a.name.localeCompare(b.name, undefined, {
+                            numeric: true, // natural sort
+                            sensitivity: 'base' // case insensitive
+                        }));
+
+                        response.data.files.sort((a, b) => a.name.localeCompare(b.name, undefined, {
+                            numeric: true, // natural sort
+                            sensitivity: 'base' // case insensitive
+                        }));
+
                         this.path = response.data.path;
                         this.parent_path = response.data.parent_path;
                         this.dirs = response.data.dirs;
