@@ -39,7 +39,7 @@
                     <td style="text-align: center;"><i class="fal" :class="stateIcon(transfer.current_state)"></i></td>
                     <td>{{ transfer.file_name }}</td>
 
-                    <td v-if="transfer.end_date" class="speed-indicator">{{speedRound(transfer.downloaded / (transfer.end_date - transfer.start_date)) }}<span class="unit">{{ speedUnit(transfer.downloaded / (transfer.end_date - transfer.start_date)) }}</span><span v-if="transfer.current_speed_limit != 0" style="color: #df372d;"><br/><i class="fal fa-tachometer" style="margin-right: 4px;"></i>{{ speedRound(transfer.current_speed_limit) }}<span class="unit">{{ speedUnit(transfer.current_speed_limit)) }}</span></span></td>
+                    <td v-if="transfer.end_date" class="speed-indicator">{{speedRound(transfer.downloaded / (transfer.end_date - transfer.start_date)) }}<span class="unit">{{ speedUnit(transfer.downloaded / (transfer.end_date - transfer.start_date)) }}</span><span v-if="transfer.current_speed_limit != 0" style="color: #df372d;"><br/><i class="fal fa-tachometer" style="margin-right: 4px;"></i>{{ speedRound(transfer.current_speed_limit) }}<span class="unit">{{ speedUnit(transfer.current_speed_limit) }}</span></span></td>
                     <td v-else class="speed-indicator">{{ speedRound(transfer.current_speed) }}<span class="unit">{{ speedUnit(transfer.current_speed) }}</span><span v-if="transfer.current_speed_limit != 0" style="color: #df372d;"><br/><i class="fal fa-tachometer" style="margin-right: 4px;"></i>{{ speedRound(transfer.current_speed_limit) }}<span class="unit">{{ speedUnit(transfer.current_speed_limit) }}</span></span></td>
 
                     <td>
