@@ -46,7 +46,7 @@
 
                 <tr v-for="(file, i) in files" :key="'file' + i" class="blur-animated" :class="{blurred: notBlurredFile !== null && i !== notBlurredFile, unblurred: !(notBlurredFile !== null && i !== notBlurredFile)}">
                     <td><i class="fal" :class="icon(file.name)"></i></td>
-                    <td><a :href="$downurl + '/' + file.path">{{ file.name }}</a></td>
+                    <td><a :href="$downurl + '/' + file.path + '/" + file.name>{{ file.name }}</a></td>
                     <td><span class="size">{{ sizeRound(file.size) }}</span><span class="extension">{{ sizeUnit(file.size) }}</span></td>
                     <td class="share-button" @click="openShareFilePopup(i)"><i class="fal fa-share-square"></i></td>
                 </tr>
