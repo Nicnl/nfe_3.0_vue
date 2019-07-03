@@ -51,7 +51,7 @@
 </template>
 
 <style lang="scss">
-    @import '../../../static/bulma-0.7.1/bulma.sass';
+    @import '@/resources/bulma-0.7.1/bulma.sass';
 
     .navbar-item {
         i.fa, i.fal, i.far, i.fas {
