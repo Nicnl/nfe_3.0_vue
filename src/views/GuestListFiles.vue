@@ -42,7 +42,7 @@
 
                 <tr v-for="(file, i) in files" :key="'file' + i" class="blur-animated" :class="{blurred: notBlurredFile !== null && i !== notBlurredFile, unblurred: !(notBlurredFile !== null && i !== notBlurredFile)}">
                     <td><i class="fal" :class="icon(file.name)"></i></td>
-                    <td><a :href="$downurl + '/' + $route.params.mooltipass + '/down/guest/' + file.path + '/' + file.name">{{ file.name }}</a></td>
+                    <td><a :href="$downurl + '/' + $route.params.mooltipass + '/down/guest/' + file.path + '/' + ($vlchotfix ? file.name.replace('[', '_').replace(']', '_') : file.name)">{{ file.name }}</a></td>
                     <td><span class="size">{{ sizeRound(file.size) }}</span><span class="extension">{{ sizeUnit(file.size) }}</span></td>
                 </tr>
                 </tbody>

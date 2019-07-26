@@ -23,7 +23,10 @@ Object.defineProperties(Vue.prototype, {
     },
     $downurl: {
         get: () => window.appConfig.urlDown
-    }
+    },
+    $vlchotfix: {
+        get: () => window.appConfig.vlcHotFix
+    },
 });
 
 
