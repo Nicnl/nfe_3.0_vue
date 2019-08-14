@@ -11,13 +11,13 @@
     <div v-else class="columns is-centered">
 
         <div class="column is-10-desktop is-9-fullhd">
-            <table v-if="displayList === null" class="table">
+            <table v-if="displayList === null" class="table" style="table-layout: fixed;">
                 <thead>
                 <tr>
-                    <th width="30px"></th>
+                    <th width="40px"></th>
                     <th></th>
                     <th width="80px"></th>
-                    <th width="20px"></th>
+                    <th width="42px"></th>
                 </tr>
                 </thead>
                 <tfoot>
@@ -38,13 +38,13 @@
                     </td>
                 </tr>
 
-                <tr v-for="(dir, i) in dirs" :key="'dir' + i" class="blur-animated" :class="{blurred: notBlurredDir !== null && i !== notBlurredDir, unblurred: !(notBlurredDir !== null && i !== notBlurredDir)}">
+                <tr v-for="(dir, i) in dirs" :key="'dir' + i" class="links-folders blur-animated" :class="{blurred: notBlurredDir !== null && i !== notBlurredDir, unblurred: !(notBlurredDir !== null && i !== notBlurredDir)}">
                     <td><i class="fal fa-folder"></i></td>
                     <td colspan="2"><router-link :to="{ name: 'ListFilesM', params: { path: dir.path } }">{{ dir.name }}</router-link></td>
                     <td class="share-button" @click="openShareDirPopup(i)"><i class="fal fa-share-square"></i></td>
                 </tr>
 
-                <tr v-for="(file, i) in files" :key="'file' + i" class="blur-animated" :class="{blurred: notBlurredFile !== null && i !== notBlurredFile, unblurred: !(notBlurredFile !== null && i !== notBlurredFile)}">
+                <tr v-for="(file, i) in files" :key="'file' + i" class="links-files blur-animated" :class="{blurred: notBlurredFile !== null && i !== notBlurredFile, unblurred: !(notBlurredFile !== null && i !== notBlurredFile)}">
                     <td><i class="fal" :class="icon(file.name)"></i></td>
                     <td><a :href="$downurl + '/' + file.path + '/' + ($vlchotfix ? file.name.replace(/\[/g, '_').replace(/\]/g, '_') : file.name)">{{ file.name }}</a></td>
                     <td><span class="size">{{ sizeRound(file.size) }}</span><span class="extension">{{ sizeUnit(file.size) }}</span></td>
@@ -116,6 +116,19 @@
 </template>
 
 <style lang="scss" scoped>
+    @import '~@/resources/custom/style.scss';
+
+    .links-files, .links-folders {
+        td a {
+            font-size: 16px;
+            @include fluid-type(font-size, 360px, 1000px, 10px, 16px);
+
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+    }
+
     $bluranimation: 135ms;
     .blur-animated {
         &.unblurred {
