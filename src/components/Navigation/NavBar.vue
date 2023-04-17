@@ -26,13 +26,34 @@
                             <i class="fal" :class="{'fa-list-ul': !listEnabled, 'fa-check': listEnabled}"></i> Liste
                         </a>
 
-                        <a
-                          v-if="currentRoute !== null && currentRoute !== undefined"
-                          class="navbar-item"
-                          :href="$downurl + '/' + currentRoute"
-                        >
-                            <i class="fal fa-download"></i> Télécharger (tar)
-                        </a>
+                        <template v-if="currentRoute !== null && currentRoute !== undefined">
+
+                            <a
+                              v-if="currentMooltipass !== null && currentMooltipass !== undefined"
+                              class="navbar-item"
+                              :href="$downurl + '/' + currentMooltipass + '/down/guest/' + currentRoute"
+                            >
+                                <i class="fal fa-download"></i> Télécharger (tar)
+                            </a>
+
+                            <a
+                              v-else
+                              class="navbar-item"
+                              :href="$downurl + '/' + currentRoute"
+                            >
+                                <i class="fal fa-download"></i> Télécharger (tar)
+                            </a>
+                        </template>
+
+                        <template v-else-if="currentMooltipass !== null && currentMooltipass">
+                            <a
+                              v-if="currentMooltipass !== null && currentMooltipass !== undefined"
+                              class="navbar-item"
+                              :href="$downurl + '/' + currentMooltipass"
+                            >
+                                <i class="fal fa-download"></i> Télécharger (tar)
+                            </a>
+                        </template>
                         <!--
                         <a class="navbar-item" :class="{'is-enabled': recursiveEnabled}" @click="toggleRecursive">
                             <i class="fal" :class="{'fa-folders': !recursiveEnabled, 'fa-check': recursiveEnabled}"></i> Récursif
@@ -98,6 +119,7 @@
                 user_admin: false,
 
                 currentRoute: null,
+                currentMooltipass: null,
             }
         },
         created() {
@@ -140,8 +162,17 @@
             },
         },
         watch: {
-            '$route.params.path': function(path) {
-                this.currentRoute = path;
+            '$route.params.path': {
+                handler: function(path) {
+                    this.currentRoute = path;
+                },
+                immediate: true,
+            },
+            '$route.params.mooltipass': {
+                handler: function(path) {
+                    this.currentMooltipass = path;
+                },
+                immediate: true,
             },
         },
         props: [
