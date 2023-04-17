@@ -27,7 +27,7 @@
                         </a>
 
                         <a
-                          v-if="currentRoute !== null"
+                          v-if="currentRoute !== null && currentRoute !== undefined"
                           class="navbar-item"
                           :href="$downurl + '/' + currentRoute"
                         >
