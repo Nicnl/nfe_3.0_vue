@@ -27,8 +27,9 @@
                         </a>
 
                         <a
+                          v-if="currentRoute !== null"
                           class="navbar-item"
-                          :href="$downurl + '/' + $router.currentRoute.params.path"
+                          :href="$downurl + '/' + currentRoute"
                         >
                             <i class="fal fa-download"></i> Télécharger (tar)
                         </a>
@@ -95,6 +96,8 @@
 
                 is_logged: false,
                 user_admin: false,
+
+                currentRoute: null,
             }
         },
         created() {
@@ -134,6 +137,11 @@
                 delete this.$axios.defaults.headers.common['Authorization'];
                 this.$eventbus.$emit('session_has_changed');
                 this.$router.push({name: 'Login'});
+            },
+        },
+        watch: {
+            '$route.params.path': function(path) {
+                this.currentRoute = path;
             },
         },
         props: [
