@@ -25,6 +25,13 @@
                         <a class="navbar-item" :class="{'is-enabled': listEnabled}" @click="toggleList">
                             <i class="fal" :class="{'fa-list-ul': !listEnabled, 'fa-check': listEnabled}"></i> Liste
                         </a>
+
+                        <a
+                          class="navbar-item"
+                          :href="$downurl + '/' + $router.currentRoute.params.path"
+                        >
+                            <i class="fal fa-download"></i> Télécharger (tar)
+                        </a>
                         <!--
                         <a class="navbar-item" :class="{'is-enabled': recursiveEnabled}" @click="toggleRecursive">
                             <i class="fal" :class="{'fa-folders': !recursiveEnabled, 'fa-check': recursiveEnabled}"></i> Récursif

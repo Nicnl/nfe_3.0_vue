@@ -9,7 +9,7 @@
 </template>
 
 <script>
-    import NavBar from '@/components/Navigation/NavBar'
+    import NavBar from '@/components/Navigation/NavBar.vue'
 
     export default {
         name: 'App',
@@ -26,7 +26,7 @@
 <style lang="scss">
     @import 'resources/bulma-0.7.1/bulma.sass';
     @import 'resources/fontawesome-pro-5.3.1-web/css/all.css';
-    @import '~pretty-checkbox/src/pretty-checkbox.scss';
+    @import 'pretty-checkbox/src/pretty-checkbox.scss';
     @import 'resources/custom/style.scss';
 
     html, body {

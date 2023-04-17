@@ -543,7 +543,7 @@
 </style>
 
 <script>
-    import orderBy from 'lodash';
+    import orderBy from 'lodash/orderBy';
 
     export default {
         name: 'Monitoring',
@@ -765,7 +765,7 @@
         },
         computed: {
             orderedTransfers: function () {
-                return _.orderBy(this.transfers, ['current_state', 'section_start', 'start_date'], ['asc', 'asc', 'desc']);
+                return orderBy(this.transfers, ['current_state', 'section_start', 'start_date'], ['asc', 'asc', 'desc']);
             }
         },
         created() {

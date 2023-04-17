@@ -1,13 +1,13 @@
 import Vue from 'vue'
 import Router from 'vue-router'
 
-import NotFound404 from '@/views/NotFound404'
-import ListFiles from '@/views/ListFiles'
-import GuestListFiles from '@/views/GuestListFiles'
-import Login from '@/views/Login'
-import HashGen from '@/views/HashGen'
-import Monitoring from '@/views/Monitoring'
-import NavBar from '@/components/Navigation/NavBar'
+import NotFound404 from '@/views/NotFound404.vue'
+import ListFiles from '@/views/ListFiles.vue'
+import GuestListFiles from '@/views/GuestListFiles.vue'
+import Login from '@/views/Login.vue'
+import HashGen from '@/views/HashGen.vue'
+import Monitoring from '@/views/Monitoring.vue'
+import NavBar from '@/components/Navigation/NavBar.vue'
 
 Vue.use(Router)
 

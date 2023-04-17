@@ -17,7 +17,7 @@
                     <th width="40px"></th>
                     <th></th>
                     <th width="80px"></th>
-                    <th width="42px"></th>
+                    <th width="48px"></th>
                 </tr>
                 </thead>
                 <tfoot>
@@ -33,22 +33,30 @@
                 <tr class="blur-animated" :class="{blurred: notBlurredDir !== null, unblurred: notBlurredDir === null}" v-if="parent_path !== null">
                     <td><i class="fal fa-folders"></i></td>
                     <td colspan="3">
-                        <router-link :to="{ name: 'ListFilesM', params: { path: parent_path } }" v-if="parent_path !== ''">..</router-link>
-                        <router-link :to="{ name: 'ListFilesHome' }" v-if="parent_path === ''">..</router-link>
+                        <router-link class="standard-link" :to="{ name: 'ListFilesM', params: { path: parent_path } }" v-if="parent_path !== ''">..</router-link>
+                        <router-link class="standard-link" :to="{ name: 'ListFilesHome' }" v-if="parent_path === ''">..</router-link>
                     </td>
                 </tr>
 
                 <tr v-for="(dir, i) in dirs" :key="'dir' + i" class="links-folders blur-animated" :class="{blurred: notBlurredDir !== null && i !== notBlurredDir, unblurred: !(notBlurredDir !== null && i !== notBlurredDir)}">
                     <td><i class="fal fa-folder"></i></td>
-                    <td colspan="2"><router-link :to="{ name: 'ListFilesM', params: { path: dir.path } }">{{ dir.name }}</router-link></td>
-                    <td class="share-button" @click="openShareDirPopup(i)"><i class="fal fa-share-square"></i></td>
+                    <td colspan="2"><router-link class="standard-link" :to="{ name: 'ListFilesM', params: { path: dir.path } }">{{ dir.name }}</router-link></td>
+                    <td class="share-button-container">
+                        <a class="share-button" :href="$downurl + '/' + dir.path"><i class="fal fa-download"></i></a>
+                        <a class="share-button" @click="openShareDirPopup(i)"><i class="fal fa-share-square"></i></a>
+                    </td>
                 </tr>
 
                 <tr v-for="(file, i) in files" :key="'file' + i" class="links-files blur-animated" :class="{blurred: notBlurredFile !== null && i !== notBlurredFile, unblurred: !(notBlurredFile !== null && i !== notBlurredFile)}">
                     <td><i class="fal" :class="icon(file.name)"></i></td>
-                    <td><a :href="$downurl + '/' + file.path + '/' + ($vlchotfix ? file.name.replace(/\[/g, '_').replace(/\]/g, '_') : file.name)">{{ file.name }}</a></td>
+                    <td><a class="standard-link" :href="$downurl + '/' + file.path + '/' + ($vlchotfix ? file.name.replace(/\[/g, '_').replace(/\]/g, '_') : file.name)">{{ file.name }}</a></td>
                     <td><span class="size">{{ sizeRound(file.size) }}</span><span class="extension">{{ sizeUnit(file.size) }}</span></td>
-                    <td class="share-button" @click="openShareFilePopup(i)"><i class="fal fa-share-square"></i></td>
+                    <td class="share-button-container">
+                        <i
+                          class="fal fa-share-square share-button"
+                          @click="openShareFilePopup(i)"
+                        ></i>
+                    </td>
                 </tr>
                 </tbody>
             </table>
@@ -116,10 +124,10 @@
 </template>
 
 <style lang="scss" scoped>
-    @import '~@/resources/custom/style.scss';
+    @import '@/resources/custom/style.scss';
 
     .links-files, .links-folders {
-        td a {
+        td a.standard-link {
             font-size: 16px;
             @include fluid-type(font-size, 360px, 1000px, 10px, 16px);
 
@@ -388,16 +396,30 @@
                     line-height: 36px;
                 }
 
-                &.share-button {
+                &.share-button-container {
+                    padding-left: 0;
+                    padding-right: 0;
+
+                    text-align: right;
+                }
+
+                .share-button {
+                    display: inline-block;
+                    height: 36px;
+                    line-height: 36px;
+
+                    padding-left: 3px;
+                    padding-right: 3px;
+
                     color: #dfdfdf;
                     cursor: pointer;
-                }
 
-                &.share-button:hover {
-                    color: #444444;
-                }
+                    &:hover {
+                        color: #444444;
+                    }
 
-                transition: color 200ms;
+                    transition: color 200ms;
+                }
 
                 .extension {
                     margin-left: 3px;
@@ -405,6 +427,7 @@
                 }
 
                 .size {
+                    margin-left: 32px;
                     font-size: 15px;
                 }
             }
@@ -451,7 +474,7 @@
         ]
     };
 
-    import debounce from 'lodash';
+    import debounce from 'lodash/debounce';
 
     export default {
         name: 'ListFiles',
@@ -540,9 +563,13 @@
                         size: 8718
                     },*/
                 ],
-            }
+
+                linkParametersChanged: null,
+            };
         },
         created() {
+            this.linkParametersChanged = debounce(this._linkParametersChanged, 165);
+
             this.fetchList(this.routePath);
 
             this.$eventbus.$on('list_mode_changed', this.listModeChanged);
@@ -569,6 +596,66 @@
             },
         },
         methods: {
+            _linkParametersChanged() {
+                //if (!this.shareFilePopupOpened && this.shareDirPopupOpened) return;
+
+                if (this.generatingLinkRequest) {
+                    this.shouldRegenLink = true;
+                    return;
+                }
+
+                if (this.$session.get('max_bandwidth') && this.speedLimitInput * this.speedLimitUnit > this.$session.get('max_bandwidth')) {
+                    this.figureOutSpeedLimit(this.$session.get('max_bandwidth'));
+                }
+
+                if (this.$session.get('max_duration') && this.timeLimitInput * this.timeLimitUnit > this.$session.get('max_duration')) {
+                    this.figureOutTimeLimit(this.$session.get('max_duration'));
+                }
+
+                if (this.shareDirPopupOpened || this.shareFilePopupOpened) {
+                    this.generatingLinkRequest = true;
+                    this.generatedLink = '';
+                    this.$axios.post(this.$url + '/api/gen/', {
+                        path: this.shareBasePath,
+                        speed: Math.floor(this.speedLimitEnabled ? this.speedLimitInput * this.speedLimitUnit : 0),
+                        duration: Math.floor(this.timeLimitEnabled ? this.timeLimitInput * this.timeLimitUnit : 0),
+                    })
+                      .then((response) => {
+
+                          if (this.shouldRegenLink) {
+                              this.linkParametersChanged();
+                          } else {
+                              if (this.shareFilePopupOpened)
+                                  this.generatedLink = this.$downurl + '/' + response.data.path;
+                              else if (this.shareDirPopupOpened)
+                                  this.generatedLink = this.$url + '/' + this.$router.resolve({
+                                      name: 'GuestListFiles',
+                                      params: {
+                                          mooltipass: response.data.path,
+                                      }
+                                  }).href;
+
+                              this.generatingLinkRequest = false;
+                          }
+                      })
+                      .catch((err) => {
+                          console.log(err);
+                          // Todo: afficher l'erreur
+
+                          if (this.shouldRegenLink) {
+                              this.linkParametersChanged();
+                          } else {
+                              this.generatingLinkRequest = false;
+                          }
+                      });
+                } else if (this.shareListPopupEnabled) {
+                    console.log('issou');
+                } else {
+                    this.closeAnyPopup();
+                    console.log('wtf!');
+                }
+            },
+
             listModeChanged(state) {
                 console.log("issou : " + state);
                 if (state) {
@@ -803,65 +890,6 @@
                     this.timeLimitInput = (value / (1 * 60 * 60 * 24 * 7)).toFixed(2);
                 }
             },
-            linkParametersChanged: _.debounce(function() {
-                //if (!this.shareFilePopupOpened && this.shareDirPopupOpened) return;
-
-                if (this.generatingLinkRequest) {
-                    this.shouldRegenLink = true;
-                    return;
-                }
-
-                if (this.$session.get('max_bandwidth') && this.speedLimitInput * this.speedLimitUnit > this.$session.get('max_bandwidth')) {
-                    this.figureOutSpeedLimit(this.$session.get('max_bandwidth'));
-                }
-
-                if (this.$session.get('max_duration') && this.timeLimitInput * this.timeLimitUnit > this.$session.get('max_duration')) {
-                    this.figureOutTimeLimit(this.$session.get('max_duration'));
-                }
-
-                if (this.shareDirPopupOpened || this.shareFilePopupOpened) {
-                    this.generatingLinkRequest = true;
-                    this.generatedLink = '';
-                    this.$axios.post(this.$url + '/api/gen/', {
-                        path: this.shareBasePath,
-                        speed: Math.floor(this.speedLimitEnabled ? this.speedLimitInput * this.speedLimitUnit : 0),
-                        duration: Math.floor(this.timeLimitEnabled ? this.timeLimitInput * this.timeLimitUnit : 0),
-                    })
-                    .then((response) => {
-
-                        if (this.shouldRegenLink) {
-                            this.linkParametersChanged();
-                        } else {
-                            if (this.shareFilePopupOpened)
-                                this.generatedLink = this.$downurl + '/' + response.data.path;
-                            else if (this.shareDirPopupOpened)
-                                this.generatedLink = this.$url + '/' + this.$router.resolve({
-                                    name: 'GuestListFiles',
-                                    params: {
-                                        mooltipass: response.data.path,
-                                    }
-                                }).href;
-
-                            this.generatingLinkRequest = false;
-                        }
-                    })
-                    .catch((err) => {
-                        console.log(err);
-                        // Todo: afficher l'erreur
-
-                        if (this.shouldRegenLink) {
-                            this.linkParametersChanged();
-                        } else {
-                            this.generatingLinkRequest = false;
-                        }
-                    });
-                } else if (this.shareListPopupEnabled) {
-                    console.log('issou');
-                } else {
-                    this.closeAnyPopup();
-                    console.log('wtf!');
-                }
-            }, 165),
 
             generateLinks() {
                 if (!this.closeAnyPopup()) return;

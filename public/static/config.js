@@ -4,7 +4,9 @@
 // };
 
 window.appConfig = {
-    urlApi: 'https://files.nicnl.com',
-    urlDown: 'https://download.nicnl.com',
+    urlApi: 'http://localhost:9581',
+    urlDown: 'http://localhost:9580',
+    // urlApi: 'https://files.nicnl.com',
+    // urlDown: 'https://download.nicnl.com',
     vlcHotFix: false,
 };

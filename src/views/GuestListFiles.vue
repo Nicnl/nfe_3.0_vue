@@ -54,7 +54,7 @@
 </template>
 
 <style lang="scss" scoped>
-    @import '~@/resources/custom/style.scss';
+    @import '@/resources/custom/style.scss';
 
     .links-files, .links-folders {
         td a {
@@ -375,7 +375,7 @@
         ]
     };
 
-    import debounce from 'lodash';
+    import debounce from 'lodash/debounce';
 
     export default {
         name: 'ListFiles',

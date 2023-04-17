@@ -1,0 +1,46 @@
+# top-most EditorConfig file
+root = true
+
+# Unix-style newlines with a newline ending every file
+[*]
+
+# Encodage
+charset = utf-8
+end_of_line = lf
+insert_final_newline = true
+
+ij_visual_guides = 99999, 99999
+
+[*.{js,css,sass,scss,vue,html}]
+
+# Style de l'indentation
+indent_style = space
+indent_size = 4
+ij_continuation_indent_size = 2
+ij_any_keep_blank_lines_in_code = 2
+
+# Style des fonctions
+ij_javascript_space_before_function_left_parenth = false
+ij_javascript_space_before_method_left_brace = true
+ij_javascript_space_before_method_parentheses = false
+ij_javascript_blank_lines_after_imports = 0
+ij_javascript_blank_lines_around_function = 1
+ij_javascript_blank_lines_around_method = 1
+ij_javascript_blank_lines_around_field = 1
+ij_javascript_blank_lines_around_class = 1
+
+ij_javascript_spaces_around_equality_operators = true
+
+# Forcer point virgules
+ij_javascript_use_semicolon_after_statement = true
+ij_javascript_force_semicolon_style = true
+
+# Forcer virgule en fin d'objet, ligne, attribut, etc
+ij_javascript_comma_on_new_line = true
+ij_javascript_enforce_trailing_comma = whenmultiline
+
+# Forcer les attributs multilignes
+ij_html_keep_line_breaks = false
+ij_html_new_line_before_first_attribute = when_multiline
+ij_html_new_line_after_last_attribute = when_multiline
+ij_html_attribute_wrap = split_into_lines
