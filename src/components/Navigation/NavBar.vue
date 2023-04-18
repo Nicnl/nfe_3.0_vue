@@ -33,7 +33,7 @@
                               class="navbar-item"
                               :href="$downurl + '/' + currentMooltipass + '/down/guest/' + currentRoute"
                             >
-                                <i class="fal fa-download"></i> Télécharger (tar)
+                                <i class="fal fa-download"></i> Télécharger (zip)
                             </a>
 
                             <a
@@ -41,7 +41,7 @@
                               class="navbar-item"
                               :href="$downurl + '/' + currentRoute"
                             >
-                                <i class="fal fa-download"></i> Télécharger (tar)
+                                <i class="fal fa-download"></i> Télécharger (zip)
                             </a>
                         </template>
 
@@ -51,7 +51,7 @@
                               class="navbar-item"
                               :href="$downurl + '/' + currentMooltipass"
                             >
-                                <i class="fal fa-download"></i> Télécharger (tar)
+                                <i class="fal fa-download"></i> Télécharger (zip)
                             </a>
                         </template>
                         <!--
