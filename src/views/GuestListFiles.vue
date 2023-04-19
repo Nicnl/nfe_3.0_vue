@@ -37,12 +37,15 @@
 
                 <tr v-for="(dir, i) in dirs" :key="'dir' + i" class="links-files blur-animated" :class="{blurred: notBlurredDir !== null && i !== notBlurredDir, unblurred: !(notBlurredDir !== null && i !== notBlurredDir)}">
                     <td><i class="fal fa-folder"></i></td>
-                    <td colspan="2"><router-link :to="{ name: 'GuestListFilesM', params: { mooltipass: $route.params.mooltipass, path: dir.path } }">{{ dir.name }}</router-link></td>
+                    <td><router-link class="standard-link" :to="{ name: 'GuestListFilesM', params: { mooltipass: $route.params.mooltipass, path: dir.path } }">{{ dir.name }}</router-link></td>
+                    <td class="share-button-container">
+                        <a class="share-button" style="margin-right: 10px;" :href="$downurl + '/' + $route.params.mooltipass + '/down/guest/' + dir.path + '/'"><i class="fal fa-download"></i></a>
+                    </td>
                 </tr>
 
                 <tr v-for="(file, i) in files" :key="'file' + i" class="links-folders blur-animated" :class="{blurred: notBlurredFile !== null && i !== notBlurredFile, unblurred: !(notBlurredFile !== null && i !== notBlurredFile)}">
                     <td><i class="fal" :class="icon(file.name)"></i></td>
-                    <td><a :href="$downurl + '/' + $route.params.mooltipass + '/down/guest/' + file.path + '/' + ($vlchotfix ? file.name.replace(/\[/g, '_').replace(/\]/g, '_') : file.name)">{{ file.name }}</a></td>
+                    <td><a class="standard-link" :href="$downurl + '/' + $route.params.mooltipass + '/down/guest/' + file.path + '/' + ($vlchotfix ? file.name.replace(/\[/g, '_').replace(/\]/g, '_') : file.name)">{{ file.name }}</a></td>
                     <td><span class="size">{{ sizeRound(file.size) }}</span><span class="extension">{{ sizeUnit(file.size) }}</span></td>
                 </tr>
                 </tbody>
@@ -57,7 +60,7 @@
     @import '@/resources/custom/style.scss';
 
     .links-files, .links-folders {
-        td a {
+        td a.standard-link {
             font-size: 16px;
             @include fluid-type(font-size, 360px, 1000px, 10px, 16px);
 
@@ -312,16 +315,30 @@
                     line-height: 36px;
                 }
 
-                &.share-button {
+                &.share-button-container {
+                    padding-left: 0;
+                    padding-right: 0;
+
+                    text-align: right;
+                }
+
+                .share-button {
+                    display: inline-block;
+                    height: 36px;
+                    line-height: 36px;
+
+                    padding-left: 3px;
+                    padding-right: 3px;
+
                     color: #dfdfdf;
                     cursor: pointer;
-                }
 
-                &.share-button:hover {
-                    color: #444444;
-                }
+                    &:hover {
+                        color: #444444;
+                    }
 
-                transition: color 200ms;
+                    transition: color 200ms;
+                }
 
                 .extension {
                     margin-left: 3px;
